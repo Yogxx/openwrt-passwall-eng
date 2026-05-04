@@ -34,14 +34,14 @@ check_run_environment() {
 		if [ "$dnsmasq_nftset" -eq 1 ] && [ "$has_fw4" -eq 1 ]; then
 			USE_TABLES="nftables"
 		elif [ "$has_ipset" -eq 1 ] && [ "$has_ipt" -eq 1 ] && [ "$dnsmasq_ipset" -eq 1 ]; then
-			echolog "警告：nftables (fw4) 应用环境不完整，切换至 iptables。(has_fw4:$has_fw4/dnsmasq_nftset:$dnsmasq_nftset)"
+			echolog "Warning: nftables (fw4) application environment is incomplete. Switch to iptables.(has_fw4:$has_fw4/dnsmasq_nftset:$dnsmasq_nftset)"
 			USE_TABLES="iptables"
 		fi
 	else
 		if [ "$has_ipset" -eq 1 ] && [ "$has_ipt" -eq 1 ] && [ "$dnsmasq_ipset" -eq 1 ]; then
 			USE_TABLES="iptables"
 		elif [ "$dnsmasq_nftset" -eq 1 ] && [ "$has_fw4" -eq 1 ]; then
-			echolog "警告：iptables (fw3) 应用环境不完整，切换至 nftables。(has_ipt:$has_ipt/has_ipset:$has_ipset/dnsmasq_ipset:$dnsmasq_ipset)"
+			echolog "Warning: The iptables (fw3) application environment is incomplete. Switch to nftables.(has_ipt:$has_ipt/has_ipset:$has_ipset/dnsmasq_ipset:$dnsmasq_ipset)"
 			USE_TABLES="nftables"
 		fi
 	fi
@@ -59,17 +59,17 @@ check_run_environment() {
 			nftflag=1
 			local v_num=$(echo "$dnsmasq_ver" | tr -cd '0-9')
 			if [ "${v_num:-0}" -lt 290 ]; then
-				echolog "提示：Dnsmasq ($dnsmasq_ver) 低于 2.90，建议升级以增强稳定性。"
+				echolog "hint：Dnsmasq ($dnsmasq_ver) If your version is below 2.90, we recommend upgrading to improve stability."
 			fi
 		fi
 		local pkg
 		for pkg in $dep_list; do
 			if [ ! -s "${file_path}/${pkg}${file_ext}" ]; then
-				echolog "警告：${USE_TABLES} 透明代理缺失基础依赖 ${pkg}！"
+				echolog "warn：${USE_TABLES} Transparent proxy lacks basic dependencies ${pkg}！"
 			fi
 		done
 	else
-		echolog "警告：不满足任何透明代理系统环境。(has_fw4:$has_fw4/has_ipt:$has_ipt/has_ipset:$has_ipset/dnsmasq_nftset:$dnsmasq_nftset/dnsmasq_ipset:$dnsmasq_ipset)"
+		echolog "Warning: Not compatible with any transparent proxy system environment.(has_fw4:$has_fw4/has_ipt:$has_ipt/has_ipset:$has_ipset/dnsmasq_nftset:$dnsmasq_nftset/dnsmasq_ipset:$dnsmasq_ipset)"
 	fi
 }
 
@@ -190,7 +190,7 @@ run_singbox() {
 	if [ "${status}" = 0 ]; then
 		ln_run "$SINGBOX_BIN" "sing-box" "${log_file}" run -c "$config_file"
 	else
-		echolog "Sing-box 配置文件 $config_file 校验有误，进程启动失败，错误信息："
+		echolog "Sing-box configuration file $config_file Verification error, process failed to start, error message："
 		cat ${test_log_file} >> ${LOG_FILE}
 	fi
 	[ "$test_log_file" != "$log_file" ] && rm -f "${test_log_file}"
@@ -280,7 +280,7 @@ run_xray() {
 	if [ "${status}" = 0 ]; then
 		ln_run "$XRAY_BIN" "xray" "${log_file}" run -c "$config_file"
 	else
-		echolog "Xray 配置文件 $config_file 校验有误，进程启动失败，错误信息："
+		echolog "Xray configuration file $config_file Verification error, process failed to start, error message："
 		cat ${test_log_file} >> ${LOG_FILE}
 	fi
 	[ "$test_log_file" != "$log_file" ] && rm -f "${test_log_file}"
@@ -349,7 +349,7 @@ run_socks() {
 		type="socks"
 		server_host="127.0.0.1"
 		server_port=$node2socks_port
-		remarks="Socks 配置($server_port 端口)"
+		remarks="Socks configuration($server_port port)"
 	fi
 
 	[ -n "$relay_port" ] && {
@@ -361,12 +361,12 @@ run_socks() {
 	if [ -n "$server_host" ] && [ -n "$server_port" ]; then
 		check_host $server_host
 		[ $? != 0 ] && {
-			echolog "  - Socks节点：[$remarks]${server_host} 是非法的服务器地址，无法启动！"
+			echolog "  - Socks node：[$remarks]${server_host} This is an invalid server address and cannot be started!"
 			return 1
 		}
 		tmp="${server_host}:${server_port}"
 	else
-		error_msg="某种原因，此 Socks 服务的相关配置已失联，启动中止！"
+		error_msg="For some reason, the configuration for this Socks service has been lost, and its startup has been aborted!"
 	fi
 
 	if [ "$type" == "sing-box" ] || [ "$type" == "xray" ]; then
@@ -377,10 +377,10 @@ run_socks() {
 	fi
 
 	[ -n "${error_msg}" ] && {
-		[ "$bind" != "127.0.0.1" ] && echolog "  - Socks节点：[$remarks]${tmp}，启动中止 ${bind}:${socks_port} ${error_msg}"
+		[ "$bind" != "127.0.0.1" ] && echolog "  - Socks node：[$remarks]${tmp}，Start-up and abort ${bind}:${socks_port} ${error_msg}"
 		return 1
 	}
-	[ "$bind" != "127.0.0.1" ] && echolog "  - Socks节点：[$remarks]${tmp}，启动 ${bind}:${socks_port}"
+	[ "$bind" != "127.0.0.1" ] && echolog "  - Socks node：[$remarks]${tmp}，start up ${bind}:${socks_port}"
 
 	json_init
 	json_add_string "node" "${node}"
@@ -580,7 +580,7 @@ run_redir() {
 		fi
 		server_host="127.0.0.1"
 		port=$node2socks_port
-		remarks="Socks 配置($port 端口)"
+		remarks="Socks configuration($port port)"
 	fi
 
 	local enable_log=$(config_t_get global log_${proto} 1)
@@ -588,11 +588,11 @@ run_redir() {
 	[ -n "$server_host" ] && [ -n "$port" ] && {
 		check_host $server_host
 		[ $? != 0 ] && {
-			echolog "${PROTO}节点：[$remarks]${server_host} 是非法的服务器地址，无法启动！"
+			echolog "${PROTO}node：[$remarks]${server_host} This is an invalid server address and cannot be started!"
 			return 1
 		}
 	}
-	[ "$bind" != "127.0.0.1" ] && echolog "${PROTO}节点：[$remarks]，监听端口：$local_port"
+	[ "$bind" != "127.0.0.1" ] && echolog "${PROTO}node：[$remarks]，Listening port：$local_port"
 
 	json_init
 	json_add_string "node" "${node}"
@@ -618,7 +618,7 @@ run_redir() {
 				local geoip_path="${V2RAY_LOCATION_ASSET%*/}/geoip.dat"
 				local geosite_path="${V2RAY_LOCATION_ASSET%*/}/geosite.dat"
 				if [ ! -s "$geoip_path" ] || [ ! -s "$geosite_path" ]; then
-					echolog "* 缺少Geo规则文件，UDP Sing-Box分流节点无法正常使用！"
+					echolog "* The UDP Sing-Box routing node cannot be used properly due to the missing Geo rules file!"
 				fi
 			}
 			run_singbox flag=UDP node=$node udp_redir_port=$local_port config_file=$config_file log_file=$log_file
@@ -629,7 +629,7 @@ run_redir() {
 				local geoip_path="${V2RAY_LOCATION_ASSET%*/}/geoip.dat"
 				local geosite_path="${V2RAY_LOCATION_ASSET%*/}/geosite.dat"
 				if [ ! -s "$geoip_path" ] || [ ! -s "$geosite_path" ]; then
-					echolog "* 缺少Geo规则文件，UDP Xray分流节点无法正常使用！"
+					echolog "* The UDP Xray splitter node cannot be used properly due to the missing Geo rules file!"
 				fi
 			}
 			run_xray flag=UDP node=$node udp_redir_port=$local_port config_file=$config_file log_file=$log_file
@@ -644,7 +644,7 @@ run_redir() {
 			ln_run "$(first_type ${type})" "${type}" $log_file -c "$config_file"
 		;;
 		naiveproxy)
-			echolog "Naiveproxy不支持UDP转发！"
+			echolog "Naiveproxy does not support UDP forwarding!"
 		;;
 		ssr)
 			json_add_string "local_addr" "0.0.0.0"
@@ -674,12 +674,12 @@ run_redir() {
 			ln_run "$(first_type $(config_t_get global_app hysteria_file))" "hysteria" $log_file -c "$config_file" client
 		;;
 		tuic)
-			echolog "TUIC不支持UDP转发！"
+			echolog "TUIC does not support UDP forwarding!"
 		;;
 		esac
 	;;
 	TCP)
-		[ "$TCP_UDP" = "1" ] && echolog "UDP节点：与TCP节点相同"
+		[ "$TCP_UDP" = "1" ] && echolog "UDP node: Same as TCP node"
 		tcp_node_socks=1
 		tcp_node_socks_bind_local=$(config_t_get global tcp_node_socks_bind_local 1)
 		tcp_node_socks_bind="127.0.0.1"
@@ -688,7 +688,7 @@ run_redir() {
 		tcp_node_http_port=$(config_t_get global tcp_node_http_port 0)
 		[ "$tcp_node_http_port" != "0" ] && tcp_node_http=1
 		if [ $PROXY_IPV6 == "1" ]; then
-			echolog "开启实验性IPv6透明代理(TProxy)，请确认您的节点及类型支持IPv6！"
+			echolog "To enable experimental IPv6 transparent proxy (TProxy), please ensure your node and type support IPv6!"
 		fi
 
 		if [ "${TCP_PROXY_WAY}" = "redirect" ]; then
@@ -753,7 +753,7 @@ run_redir() {
 				local geoip_path="${V2RAY_LOCATION_ASSET%*/}/geoip.dat"
 				local geosite_path="${V2RAY_LOCATION_ASSET%*/}/geosite.dat"
 				if [ ! -s "$geoip_path" ] || [ ! -s "$geosite_path" ]; then
-					echolog "* 缺少Geo规则文件，TCP Sing-Box分流节点无法正常使用！"
+					echolog "* The TCP Sing-Box routing node cannot be used properly due to the missing Geo rules file!"
 				fi
 			}
 
@@ -834,7 +834,7 @@ run_redir() {
 				local geoip_path="${V2RAY_LOCATION_ASSET%*/}/geoip.dat"
 				local geosite_path="${V2RAY_LOCATION_ASSET%*/}/geosite.dat"
 				if [ ! -s "$geoip_path" ] || [ ! -s "$geosite_path" ]; then
-					echolog "* 缺少Geo规则文件，TCP Xray分流节点无法正常使用！"
+					echolog "* The TCP Xray splitter node cannot be used properly due to the missing Geo rules file!"
 				fi
 			}
 
@@ -1038,7 +1038,7 @@ start_redir() {
 		}
 	else
 		[ "${proto}" = "UDP" ] && [ "$TCP_UDP" = "1" ] && return
-		echolog "${proto}节点没有选择或为空，不代理${proto}。"
+		echolog "${proto}If no node is selected or the node is empty, no proxy will be provided.${proto}。"
 	fi
 }
 
@@ -1046,7 +1046,7 @@ start_socks() {
 	[ "$SOCKS_ENABLED" = "1" ] && {
 		local ids=$(uci show $CONFIG | grep "=socks" | awk -F '.' '{print $2}' | awk -F '=' '{print $1}')
 		[ -n "$ids" ] && {
-			echolog "分析 Socks 服务的节点配置..."
+			echolog "Analyze the node configuration of the Socks service..."
 			for id in $ids; do
 				local enabled=$(config_n_get $id enabled 0)
 				[ "$enabled" == "0" ] && continue
@@ -1138,7 +1138,7 @@ start_crontab() {
 
 	if [ -f "${LOCK_PATH}/${CONFIG}_cron.lock" ]; then
 		rm -f "${LOCK_PATH}/${CONFIG}_cron.lock"
-		echolog "当前为计划任务自动运行，不重新配置定时任务。"
+		echolog "The task is currently running automatically as a scheduled task; no reconfiguration of the scheduled task is required."
 		return
 	fi
 
@@ -1173,11 +1173,11 @@ start_crontab() {
 	}
 
 	# ===== stop/start/restart =====
-	add_service_cron "$(config_t_get global_delay stop_week_mode)" "$(config_t_get global_delay stop_time_mode)" "stop" "配置定时任务：自动关闭服务。"
+	add_service_cron "$(config_t_get global_delay stop_week_mode)" "$(config_t_get global_delay stop_time_mode)" "stop" "Configure a scheduled task to automatically shut down the service."
 
-	add_service_cron "$(config_t_get global_delay start_week_mode)" "$(config_t_get global_delay start_time_mode)" "start" "配置定时任务：自动开启服务。"
+	add_service_cron "$(config_t_get global_delay start_week_mode)" "$(config_t_get global_delay start_time_mode)" "start" "Configure a scheduled task to automatically start the service."
 
-	add_service_cron "$(config_t_get global_delay restart_week_mode)" "$(config_t_get global_delay restart_time_mode)" "restart" "配置定时任务：自动重启服务。"
+	add_service_cron "$(config_t_get global_delay restart_week_mode)" "$(config_t_get global_delay restart_time_mode)" "restart" "Configure a scheduled task to automatically restart the service."
 
 	# ===== rule update =====
 	local autoupdate=$(config_t_get global_rules auto_update)
@@ -1190,7 +1190,7 @@ start_crontab() {
 		else
 			echo "$rule_t lua $APP_PATH/rule_update.lua log all cron > /dev/null 2>&1 &" >>/etc/crontabs/root
 		fi
-		echolog "配置定时任务：自动更新规则。"
+		echolog "Configure a scheduled task to automatically update rules."
 	fi
 
 	# ===== subscribe =====
@@ -1204,7 +1204,7 @@ start_crontab() {
 			week_update=$(config_n_get "$item" week_update)
 			time_update=$(config_n_get "$item" time_update)
 			echo "$cfgid" >> "$TMP_SUB_PATH/${week_update}_${time_update}"
-			echolog "配置定时任务：自动更新【$remark】订阅。"
+			echolog "Configure scheduled tasks: Automatic updates【$remark】subscription."
 		fi
 	done
 	if [ -d "$TMP_SUB_PATH" ]; then
@@ -1227,10 +1227,10 @@ start_crontab() {
 	if [ "$ENABLED_DEFAULT_ACL" = "1" ] || [ "$ENABLED_ACLS" = "1" ]; then
 		if [ "$update_loop" = "1" ]; then
 			$APP_PATH/tasks.sh >/dev/null 2>&1 &
-			echolog "自动更新：启动循环更新进程。"
+			echolog "Automatic Updates: Starts a cyclical update process."
 		fi
 	else
-		echolog "运行于非代理模式，仅允许服务启停的定时任务。"
+		echolog "Running in non-agent mode, it only allows scheduled tasks for starting and stopping services."
 	fi
 
 	/etc/init.d/cron restart
@@ -1244,7 +1244,7 @@ stop_crontab() {
 }
 
 start_dns() {
-	echolog "DNS域名解析："
+	echolog "DNS domain name resolution："
 
 	local china_ng_local_dns=$(IFS=','; set -- $LOCAL_DNS; [ "${1%%[#:]*}" = "127.0.0.1" ] && echo "$1" || ([ -n "$2" ] && echo "$*" || echo "$1"))
 	local sing_box_local_dns=
@@ -1277,7 +1277,7 @@ start_dns() {
 				local china_ng_c_dns="tcp://$(get_first_dns DIRECT_DNS 53 | sed -E 's/^\[([^]]+)\]:(.*)$/\1#\2/; t; s/^([^:]+):([0-9]+)$/\1#\2/')"
 				ln_run "$(first_type chinadns-ng)" chinadns-ng "/dev/null" -b :: -l ${NEXT_DNS_LISTEN_PORT} -c ${china_ng_c_dns} -d chn
 				echolog "  - ChinaDNS-NG(${LOCAL_DNS}) -> ${china_ng_c_dns}"
-				echolog "  * 请确保上游直连 DNS 支持 TCP 查询。"
+				echolog "  * Please ensure that the upstream directly connected DNS supports TCP queries."
 				NEXT_DNS_LISTEN_PORT=$(expr $NEXT_DNS_LISTEN_PORT + 1)
 			}
 		;;
@@ -1407,8 +1407,8 @@ start_dns() {
 
 	[ -n "${resolve_dns_log}" ] && echolog "  - ${resolve_dns_log}"
 
-	[ -n "${TCP_PROXY_DNS}" ] && echolog "  * 请确认上游 DNS 支持 TCP/DoH 查询，如非直连地址，确保 TCP 代理打开，并且已经正确转发！"
-	[ -n "${UDP_PROXY_DNS}" ] && echolog "  * 请确认上游 DNS 支持 UDP 查询并已使用 UDP 节点，如上游 DNS 非直连地址，确保 UDP 代理打开，并且已经正确转发！"
+	[ -n "${TCP_PROXY_DNS}" ] && echolog "  * Please confirm that the upstream DNS supports TCP/DoH queries. If it is not a directly connected address, ensure that the TCP proxy is enabled and is forwarding correctly!"
+	[ -n "${UDP_PROXY_DNS}" ] && echolog "  * Please confirm that the upstream DNS supports UDP queries and is using a UDP node. If the upstream DNS is not a directly connected address, ensure that the UDP proxy is enabled and forwarding is done correctly!"
 
 	local china_ng_listen=0
 	[ "${DNS_SHUNT}" = "smartdns" ] && {
@@ -1422,9 +1422,9 @@ start_dns() {
 				smartdns_remote_dns="tcp://1.1.1.1"
 			fi
 
-			echolog "  - 域名解析：使用SmartDNS，请确保配置正常。"
+			echolog "  - Domain name resolution: Use SmartDNS, please ensure the configuration is correct."
 			china_ng_listen="127.0.0.1#${SMARTDNS_LISTEN_PORT}"
-			echolog "  - SmartDNS(127.0.0.1#${SMARTDNS_LOCAL_PORT}) -> 国内分组(${group_domestic:-null})，SmartDNS(${china_ng_listen}) -> Dnsmasq"
+			echolog "  - SmartDNS(127.0.0.1#${SMARTDNS_LOCAL_PORT}) -> Domestic Groups(${group_domestic:-null})，SmartDNS(${china_ng_listen}) -> Dnsmasq"
 			china_ng_listen="${china_ng_listen},::1#${SMARTDNS_LISTEN_PORT}"
 
 			local subnet_ip=$(config_t_get global remote_dns_client_ip)
@@ -1440,7 +1440,7 @@ start_dns() {
 			USE_DEFAULT_DNS="chinadns_ng"
 		else
 			DNS_SHUNT="dnsmasq"
-			echolog "  * 未安装SmartDNS，默认使用Dnsmasq进行域名解析！"
+			echolog "  * SmartDNS is not installed; Dnsmasq is used by default for domain name resolution!"
 		fi
 	}
 
@@ -1448,7 +1448,7 @@ start_dns() {
 		chinadns_ng_min=2024.04.13
 		chinadns_ng_now=$($(first_type chinadns-ng) -V | grep -i "ChinaDNS-NG " | awk '{print $2}')
 		if [ $(check_ver "$chinadns_ng_now" "$chinadns_ng_min") = 1 ]; then
-			echolog "  * 注意：当前 ChinaDNS-NG 版本为[ $chinadns_ng_now ]，请更新到[ $chinadns_ng_min ]或以上版本，否则 DNS 有可能无法正常工作！"
+			echolog "  * Note: The current ChinaDNS-NG version is[ $chinadns_ng_now ]，Please update to[ $chinadns_ng_min ]或以上版本，否则 DNS 有可能无法正常工作！"
 		fi
 
 		[ "$FILTER_PROXY_IPV6" = "1" ] && DNSMASQ_FILTER_PROXY_IPV6=0
