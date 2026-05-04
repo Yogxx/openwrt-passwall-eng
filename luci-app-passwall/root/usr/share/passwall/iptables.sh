@@ -1154,10 +1154,10 @@ add_firewall_rule() {
 			add_port_rules "$ipt_m -A PSW_OUTPUT -p udp" $UDP_NO_REDIR_PORTS "-j RETURN"
 			add_port_rules "$ip6t_m -A PSW_OUTPUT -p udp" $UDP_NO_REDIR_PORTS "-j RETURN"
 			if ! has_1_65535 "$UDP_NO_REDIR_PORTS"; then
-				echolog "  - ${msg}不代理 UDP 端口[${UDP_NO_REDIR_PORTS}]"
+				echolog "  - ${msg}Do not proxy UDP ports[${UDP_NO_REDIR_PORTS}]"
 			else
 				unset LOCALHOST_UDP_PROXY_MODE
-				echolog "  - ${msg}不代理所有 UDP 端口"
+				echolog "  - ${msg}Do not proxy all UDP ports"
 			fi
 		}
 
@@ -1178,7 +1178,7 @@ add_firewall_rule() {
 				[ "${CHN_LIST}" != "0" ] && add_port_rules "$ipt_m -A PSW_OUTPUT -p tcp" $TCP_PROXY_DROP_PORTS "$(dst $IPSET_CHN) $(get_jump_ipt ${CHN_LIST} "-j DROP")"
 				[ "${USE_SHUNT_TCP}" = "1" ] && add_port_rules "$ipt_m -A PSW_OUTPUT -p tcp" $TCP_PROXY_DROP_PORTS "$(dst $IPSET_SHUNT) -j DROP"
 				[ "${LOCALHOST_TCP_PROXY_MODE}" != "disable" ] && add_port_rules "$ipt_m -A PSW_OUTPUT -p tcp" $TCP_PROXY_DROP_PORTS "-j DROP"
-				echolog "  - ${msg}屏蔽代理 TCP 端口[${TCP_PROXY_DROP_PORTS}]"
+				echolog "  - ${msg}Block proxy TCP ports[${TCP_PROXY_DROP_PORTS}]"
 			}
 			
 			[ "$UDP_PROXY_DROP_PORTS" != "disable" ] && {
@@ -1188,7 +1188,7 @@ add_firewall_rule() {
 				[ "${CHN_LIST}" != "0" ] && add_port_rules "$ipt_m -A PSW_OUTPUT -p udp" $UDP_PROXY_DROP_PORTS "$(dst $IPSET_CHN) $(get_jump_ipt ${CHN_LIST} "-j DROP")"
 				[ "${USE_SHUNT_UDP}" = "1" ] && add_port_rules "$ipt_m -A PSW_OUTPUT -p udp" $UDP_PROXY_DROP_PORTS "$(dst $IPSET_SHUNT) -j DROP"
 				[ "${LOCALHOST_UDP_PROXY_MODE}" != "disable" ] && add_port_rules "$ipt_m -A PSW_OUTPUT -p udp" $UDP_PROXY_DROP_PORTS "-j DROP"
-				echolog "  - ${msg}屏蔽代理 UDP 端口[${UDP_PROXY_DROP_PORTS}]"
+				echolog "  - ${msg}Block proxy UDP ports[${UDP_PROXY_DROP_PORTS}]"
 			}
 		}
 
@@ -1199,25 +1199,25 @@ add_firewall_rule() {
 				if echo "${2}" | grep -q -v ':'; then
 					ipset -q test $IPSET_LAN ${2}
 					[ $? -eq 0 ] && {
-						echolog "  - 上游 DNS 服务器 ${2} 已在直接访问的列表中，不强制向 TCP 代理转发对该服务器 TCP/${3} 端口的访问"
+						echolog "  - The upstream DNS server ${2} is already on the direct access list, so we will not force the TCP proxy to forward access to this server's TCP/${3} port."
 						return 0
 					}
 					if [ -z "${is_tproxy}" ]; then
 						$ipt_n -I PSW_OUTPUT -p tcp -d ${2} --dport ${3} $(REDIRECT $TCP_REDIR_PORT)
 					else
 						$ipt_m -I PSW_OUTPUT -p tcp -d ${2} --dport ${3} -j PSW_RULE
-						$ipt_m -I PSW $(comment "本机") -p tcp -i lo -d ${2} --dport ${3} $(REDIRECT $TCP_REDIR_PORT TPROXY)
+						$ipt_m -I PSW $(comment "This machine") -p tcp -i lo -d ${2} --dport ${3} $(REDIRECT $TCP_REDIR_PORT TPROXY)
 					fi
-					echolog "  - [$?]将上游 DNS 服务器 ${2}:${3} 加入到路由器自身代理的 TCP 转发链"
+					echolog "  - [$?] Adds the upstream DNS server ${2}:${3} to the TCP forwarding chain proxied by the router itself."
 				else
 					ipset -q test $IPSET_LAN6 ${2}
 					[ $? -eq 0 ] && {
-						echolog "  - 上游 DNS 服务器 ${2} 已在直接访问的列表中，不强制向 TCP 代理转发对该服务器 TCP/${3} 端口的访问"
+						echolog "  - The upstream DNS server ${2} is already on the direct access list, so we will not force the TCP proxy to forward access to this server's TCP/${3} port."
 						return 0
 					}
 					$ip6t_m -I PSW_OUTPUT -p tcp -d ${2} --dport ${3} -j PSW_RULE
-					$ip6t_m -I PSW $(comment "本机") -p tcp -i lo -d ${2} --dport ${3} $(REDIRECT $TCP_REDIR_PORT TPROXY)
-					echolog "  - [$?]将上游 DNS 服务器 [${2}]:${3} 加入到路由器自身代理的 TCP 转发链，请确保您的节点支持IPv6，并开启IPv6透明代理！"
+					$ip6t_m -I PSW $(comment "This machine") -p tcp -i lo -d ${2} --dport ${3} $(REDIRECT $TCP_REDIR_PORT TPROXY)
+					echolog "  - Add the upstream DNS server [${2}]:${3} to the TCP forwarding chain proxied by the router itself. Please ensure that your node supports IPv6 and that IPv6 transparent proxy is enabled!"
 				fi
 			}
 			[ -n "${TCP_PROXY_DNS}" ] && hosts_foreach REMOTE_DNS _proxy_tcp_access 53
@@ -1249,11 +1249,11 @@ add_firewall_rule() {
 				[ "${CHN_LIST}" != "0" ] && add_port_rules "$ipt_tmp -A PSW_OUTPUT -p tcp" $TCP_REDIR_PORTS "$(dst $IPSET_CHN) $(get_jump_ipt ${CHN_LIST} "${ipt_j}")"
 				[ "${USE_SHUNT_TCP}" = "1" ] && add_port_rules "$ipt_tmp -A PSW_OUTPUT -p tcp" $TCP_REDIR_PORTS "$(dst $IPSET_SHUNT) ${ipt_j}"
 				[ "${LOCALHOST_TCP_PROXY_MODE}" != "disable" ] && add_port_rules "$ipt_tmp -A PSW_OUTPUT -p tcp" $TCP_REDIR_PORTS "${ipt_j}"
-				[ -n "${is_tproxy}" ] && $ipt_m -A PSW $(comment "本机") -p tcp -i lo $(REDIRECT $TCP_REDIR_PORT TPROXY)
+				[ -n "${is_tproxy}" ] && $ipt_m -A PSW $(comment "This machine") -p tcp -i lo $(REDIRECT $TCP_REDIR_PORT TPROXY)
 			}
 			[ -z "${is_tproxy}" ] && $ipt_n -A OUTPUT -p tcp -j PSW_OUTPUT
 			[ -n "${is_tproxy}" ] && {
-				$ipt_m -A PSW $(comment "本机") -p tcp -i lo -j RETURN
+				$ipt_m -A PSW $(comment "This machine") -p tcp -i lo -j RETURN
 				insert_rule_before "$ipt_m" "OUTPUT" "mwan3" "$(comment mangle-OUTPUT-PSW) -p tcp -j PSW_OUTPUT"
 			}
 
@@ -1265,9 +1265,9 @@ add_firewall_rule() {
 					[ "${CHN_LIST}" != "0" ] && add_port_rules "$ip6t_m -A PSW_OUTPUT -p tcp" $TCP_REDIR_PORTS "$(dst $IPSET_CHN6) $(get_jump_ipt ${CHN_LIST} "-j PSW_RULE")"
 					[ "${USE_SHUNT_TCP}" = "1" ] && add_port_rules "$ip6t_m -A PSW_OUTPUT -p tcp" $TCP_REDIR_PORTS "$(dst $IPSET_SHUNT6) -j PSW_RULE"
 					[ "${LOCALHOST_TCP_PROXY_MODE}" != "disable" ] && add_port_rules "$ip6t_m -A PSW_OUTPUT -p tcp" $TCP_REDIR_PORTS "-j PSW_RULE"
-					$ip6t_m -A PSW $(comment "本机") -p tcp -i lo $(REDIRECT $TCP_REDIR_PORT TPROXY)
+					$ip6t_m -A PSW $(comment "This machine") -p tcp -i lo $(REDIRECT $TCP_REDIR_PORT TPROXY)
 				}
-				$ip6t_m -A PSW $(comment "本机") -p tcp -i lo -j RETURN
+				$ip6t_m -A PSW $(comment "This machine") -p tcp -i lo -j RETURN
 				insert_rule_before "$ip6t_m" "OUTPUT" "mwan3" "$(comment mangle-OUTPUT-PSW) -p tcp -j PSW_OUTPUT"
 			}
 		fi
@@ -1279,21 +1279,21 @@ add_firewall_rule() {
 				if echo "${2}" | grep -q -v ':'; then
 					ipset -q test $IPSET_LAN ${2}
 					[ $? == 0 ] && {
-						echolog "  - 上游 DNS 服务器 ${2} 已在直接访问的列表中，不强制向 UDP 代理转发对该服务器 UDP/${3} 端口的访问"
+						echolog "  - The upstream DNS server ${2} is already on the direct access list, so we will not force the UDP proxy to forward access to this server's UDP/${3} port."
 						return 0
 					}
 					$ipt_m -I PSW_OUTPUT -p udp -d ${2} --dport ${3} -j PSW_RULE
-					$ipt_m -I PSW $(comment "本机") -p udp -i lo -d ${2} --dport ${3} $(REDIRECT $UDP_REDIR_PORT TPROXY)
-					echolog "  - [$?]将上游 DNS 服务器 ${2}:${3} 加入到路由器自身代理的 UDP 转发链"
+					$ipt_m -I PSW $(comment "This machine") -p udp -i lo -d ${2} --dport ${3} $(REDIRECT $UDP_REDIR_PORT TPROXY)
+					echolog "  - [$?] Adds the upstream DNS server ${2}:${3} to the UDP forwarding chain proxied by the router itself."
 				else
 					ipset -q test $IPSET_LAN6 ${2}
 					[ $? == 0 ] && {
-						echolog "  - 上游 DNS 服务器 ${2} 已在直接访问的列表中，不强制向 UDP 代理转发对该服务器 UDP/${3} 端口的访问"
+						echolog "  - The upstream DNS server ${2} is already on the direct access list, so we will not force the UDP proxy to forward access to this server's UDP/${3} port."
 						return 0
 					}
 					$ip6t_m -I PSW_OUTPUT -p udp -d ${2} --dport ${3} -j PSW_RULE
-					$ip6t_m -I PSW $(comment "本机") -p udp -i lo -d ${2} --dport ${3} $(REDIRECT $UDP_REDIR_PORT TPROXY)
-					echolog "  - [$?]将上游 DNS 服务器 [${2}]:${3} 加入到路由器自身代理的 UDP 转发链，请确保您的节点支持IPv6，并开启IPv6透明代理！"
+					$ip6t_m -I PSW $(comment "This machine") -p udp -i lo -d ${2} --dport ${3} $(REDIRECT $UDP_REDIR_PORT TPROXY)
+					echolog "  - Add the upstream DNS server [${2}]:${3} to the UDP forwarding chain proxied by the router itself. Please ensure that your node supports IPv6 and that IPv6 transparent proxy is enabled!"
 				fi
 			}
 			[ -n "${UDP_PROXY_DNS}" ] && hosts_foreach REMOTE_DNS _proxy_udp_access 53
@@ -1304,9 +1304,9 @@ add_firewall_rule() {
 				[ "${CHN_LIST}" != "0" ] && add_port_rules "$ipt_m -A PSW_OUTPUT -p udp" $UDP_REDIR_PORTS "$(dst $IPSET_CHN) $(get_jump_ipt ${CHN_LIST} "-j PSW_RULE")"
 				[ "${USE_SHUNT_UDP}" = "1" ] && add_port_rules "$ipt_m -A PSW_OUTPUT -p udp" $UDP_REDIR_PORTS "$(dst $IPSET_SHUNT) -j PSW_RULE"
 				[ "${LOCALHOST_UDP_PROXY_MODE}" != "disable" ] && add_port_rules "$ipt_m -A PSW_OUTPUT -p udp" $UDP_REDIR_PORTS "-j PSW_RULE"
-				$ipt_m -A PSW $(comment "本机") -p udp -i lo $(REDIRECT $UDP_REDIR_PORT TPROXY)
+				$ipt_m -A PSW $(comment "This machine"") -p udp -i lo $(REDIRECT $UDP_REDIR_PORT TPROXY)
 			}
-			$ipt_m -A PSW $(comment "本机") -p udp -i lo -j RETURN
+			$ipt_m -A PSW $(comment "This machine") -p udp -i lo -j RETURN
 			insert_rule_before "$ipt_m" "OUTPUT" "mwan3" "$(comment mangle-OUTPUT-PSW) -p udp -j PSW_OUTPUT"
 
 			[ "$PROXY_IPV6" == "1" ] && {
@@ -1317,9 +1317,9 @@ add_firewall_rule() {
 					[ "${CHN_LIST}" != "0" ] && add_port_rules "$ip6t_m -A PSW_OUTPUT -p udp" $UDP_REDIR_PORTS "$(dst $IPSET_CHN6) $(get_jump_ipt ${CHN_LIST} "-j PSW_RULE")"
 					[ "${USE_SHUNT_UDP}" = "1" ] && add_port_rules "$ip6t_m -A PSW_OUTPUT -p udp" $UDP_REDIR_PORTS "$(dst $IPSET_SHUNT6) -j PSW_RULE"
 					[ "${LOCALHOST_UDP_PROXY_MODE}" != "disable" ] && add_port_rules "$ip6t_m -A PSW_OUTPUT -p udp" $UDP_REDIR_PORTS "-j PSW_RULE"
-					$ip6t_m -A PSW $(comment "本机") -p udp -i lo $(REDIRECT $UDP_REDIR_PORT TPROXY)
+					$ip6t_m -A PSW $(comment "This machine") -p udp -i lo $(REDIRECT $UDP_REDIR_PORT TPROXY)
 				}
-				$ip6t_m -A PSW $(comment "本机") -p udp -i lo -j RETURN
+				$ip6t_m -A PSW $(comment "This machine") -p udp -i lo -j RETURN
 				insert_rule_before "$ip6t_m" "OUTPUT" "mwan3" "$(comment mangle-OUTPUT-PSW) -p udp -j PSW_OUTPUT"
 			}
 		fi
@@ -1346,7 +1346,7 @@ add_firewall_rule() {
 
 	filter_direct_node_list > /dev/null 2>&1 &
 
-	echolog "防火墙规则加载完成！"
+	echolog "Firewall rules loaded!"
 }
 
 del_firewall_rule() {
@@ -1391,11 +1391,11 @@ del_firewall_rule() {
 	destroy_ipset $IPSET_BLOCK6
 	destroy_ipset $IPSET_WHITE6
 
-	echolog "删除 iptables 规则完成。"
+	echolog "The deletion of the iptables rule has been completed."
 }
 
 flush_ipset() {
-	echolog "清空 IPSet。"
+	echolog "Clear IPSet."
 	for _name in $(ipset list | grep "Name: " | grep "passwall_" | awk '{print $2}'); do
 		destroy_ipset ${_name}
 	done
