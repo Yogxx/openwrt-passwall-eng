@@ -153,9 +153,9 @@ if USE_BLOCK_LIST == "1" and not fs.access(file_block_host) then
 	end
 	if USE_GEOVIEW == "1" and geosite_arg ~= "" and api.is_finded("geoview") then
 		if get_geosite(geosite_arg, file_block_host) == 0 then
-			log("  * 解析[屏蔽列表] Geosite 到屏蔽域名表(blocklist)完成")
+			log("  * The Geosite code snippet for the blocked domain list has been completed.")
 		else
-			log("  * 解析[屏蔽列表] Geosite 到屏蔽域名表(blocklist)失败！")
+			log("  * Failed to resolve Geosite [blocklist] to the blocklist!")
 		end
 	end
 end
@@ -204,7 +204,7 @@ if is_file_nonzero(file_vpslist) then
 		"group-ipset " .. table.concat(sets, ",")
 	}
 	insert_array_after(config_lines, tmp_lines, "#--6")
-	log(string.format("  - 节点列表中的域名(vpslist)：%s", DNS_LOCAL or "默认"))
+	log(string.format("  - Domains in the node list(vpslist)：%s", DNS_LOCAL or "默认"))
 end
 
 --直连（白名单）列表
@@ -232,9 +232,9 @@ if USE_DIRECT_LIST == "1" and not fs.access(file_direct_host) then
 	end
 	if USE_GEOVIEW == "1" and geosite_arg ~= "" and api.is_finded("geoview") then
 		if get_geosite(geosite_arg, file_direct_host) == 0 then
-			log("  * 解析[直连列表] Geosite 到域名白名单(whitelist)完成")
+			log("  * The direct connection list of Geosite domains has been resolved to the domain whitelist.")
 		else
-			log("  * 解析[直连列表] Geosite 到域名白名单(whitelist)失败！")
+			log("  * Failed to resolve Geosite from the direct connection list to the domain whitelist!")
 		end
 	end
 end
@@ -250,7 +250,7 @@ if USE_DIRECT_LIST == "1" and is_file_nonzero(file_direct_host) then
 		"group-ipset " .. table.concat(sets, ",")
 	}
 	insert_array_after(config_lines, tmp_lines, "#--4")
-	log(string.format("  - 域名白名单(whitelist)：%s", DNS_LOCAL or "默认"))
+	log(string.format("  - Domain whitelist(whitelist)：%s", DNS_LOCAL or "默认"))
 end
 
 --代理（黑名单）列表
@@ -278,9 +278,9 @@ if USE_PROXY_LIST == "1" and not fs.access(file_proxy_host) then
 	end
 	if USE_GEOVIEW == "1" and geosite_arg ~= "" and api.is_finded("geoview") then
 		if get_geosite(geosite_arg, file_proxy_host) == 0 then
-			log("  * 解析[代理列表] Geosite 到代理域名表(blacklist)完成")
+			log("  * The Geosite proxy list (blacklist) has been resolved.")
 		else
-			log("  * 解析[代理列表] Geosite 到代理域名表(blacklist)失败！")
+			log("  * Failed to resolve Geosite [proxy list] to proxy domain table (blacklist)!")
 		end
 	end
 end
@@ -303,7 +303,7 @@ if USE_PROXY_LIST == "1" and is_file_nonzero(file_proxy_host) then
 	}
 	if NO_IPV6_TRUST == "1" then table.insert(tmp_lines, "no-ipv6 tag:proxylist") end
 	insert_array_after(config_lines, tmp_lines, "#--3")
-	log(string.format("  - 代理域名表(blacklist)：%s", DNS_TRUST or "默认"))
+	log(string.format("  - proxy domain list(blacklist)：%s", DNS_TRUST or "default"))
 end
 
 --内置组(chn/gfw)优先级在自定义组后
@@ -325,7 +325,7 @@ if GFWLIST == "1" and is_file_nonzero(RULES_PATH .. "/gfwlist") then
 	}
 	if NO_IPV6_TRUST == "1" then table.insert(tmp_lines, "no-ipv6 tag:gfw") end
 	merge_array(config_lines, tmp_lines)
-	log(string.format("  - 防火墙域名表(gfwlist)：%s", DNS_TRUST or "默认"))
+	log(string.format("  - Firewall Domain Name Table(gfwlist)：%s", DNS_TRUST or "default"))
 end
 
 --中国列表
@@ -339,7 +339,7 @@ if CHNLIST ~= "0" and is_file_nonzero(RULES_PATH .. "/chnlist") then
 			"chnlist-first"
 		}
 		merge_array(config_lines, tmp_lines)
-		log(string.format("  - 中国域名表(chnroute)：%s", DNS_LOCAL or "默认"))
+		log(string.format("  - China Domain Name List(chnroute)：%s", DNS_LOCAL or "default"))
 	end
 
 	--回中国模式
@@ -356,7 +356,7 @@ if CHNLIST ~= "0" and is_file_nonzero(RULES_PATH .. "/chnlist") then
 		}
 		if NO_IPV6_TRUST == "1" then table.insert(tmp_lines, "no-ipv6 tag:chn_proxy") end
 		insert_array_after(config_lines, tmp_lines, "#--1")
-		log(string.format("  - 中国域名表(chnroute)：%s", DNS_TRUST or "默认"))
+		log(string.format("  - China Domain Name List(chnroute)：%s", DNS_TRUST or "default"))
 	end
 end
 
@@ -404,7 +404,7 @@ if IS_SHUNT_NODE then
 			end
 
 			if _node_id ~= "_direct" then
-				log(string.format("  - Sing-Box/Xray分流规则(%s)：%s", s.remarks, DNS_TRUST or "默认"))
+				log(string.format("  - Sing-Box/Xray Trimming Rules(%s)：%s", s.remarks, DNS_TRUST or "default"))
 			end
 		end
 	end)
@@ -438,9 +438,9 @@ if IS_SHUNT_NODE then
 			return_shunt = get_geosite(geosite_shunt_arg, file_shunt_host)
 		end
 		if (return_white == nil or return_white == 0) and (return_shunt == nil or return_shunt == 0) then
-			log("  * 解析[分流节点] Geosite 完成")
+			log("  * Geosite parsing [split node] complete.")
 		else
-			log("  * 解析[分流节点] Geosite 失败！")
+			log("  * Parsing the [split node] Geosite failed!")
 		end
 	end
 
@@ -518,11 +518,11 @@ end
 table.insert(config_lines, "hosts")
 
 if DEFAULT_TAG == "chn" then
-	log(string.format("  - 默认 DNS ：%s", DNS_LOCAL))
+	log(string.format("  - Default DNS ：%s", DNS_LOCAL))
 elseif  DEFAULT_TAG == "gfw" then
-	log(string.format("  - 默认 DNS ：%s", DNS_TRUST))
+	log(string.format("  - Default DNS ：%s", DNS_TRUST))
 else
-	log(string.format("  - 默认 DNS ：%s", "智能匹配"))
+	log(string.format("  - Default DNS ：%s", "Smart Matching"))
 end
 
 --输出配置文件
@@ -535,4 +535,4 @@ if #config_lines > 0 then
 	end
 end
 
-log("  - ChinaDNS-NG已作为Dnsmasq上游，如果你自行配置了错误的DNS流程，将会导致域名(直连/代理域名)分流失效！！！")
+log("  - ChinaDNS-NG is now the upstream of Dnsmasq. If you configure the DNS process incorrectly, it will cause the domain name (direct connection/proxy domain name) splitting to fail!！！")
