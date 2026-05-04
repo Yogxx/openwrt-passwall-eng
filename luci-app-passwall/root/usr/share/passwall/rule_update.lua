@@ -348,7 +348,7 @@ local function non_file_check(file_path, header_content)
 	local remote_file_size = nil
 	local local_file_size = tonumber(fs.stat(file_path, "size") or 0)
 	if local_file_size == 0 then
-		log("下载文件为空或读取出错。")
+		log("The downloaded file is empty or an error occurred while reading it.")
 		return true
 	end
 	if header_content and header_content ~= "" then
@@ -360,7 +360,7 @@ local function non_file_check(file_path, header_content)
 		end
 	end
 	if remote_file_size and remote_file_size ~= local_file_size then
-		log(string.format("校验出错：远程 %dB, 下载 %dB", remote_file_size, local_file_size))
+		log(string.format("Verification error: Remote %dB, Download %dB", remote_file_size, local_file_size))
 		return true
 	end
 	return false
@@ -369,7 +369,7 @@ end
 local function GeoToRule(rule_name, rule_type, out_path)
 	local bin = api.finded_com("geoview")
 	if not (bin and api.compare_versions(api.get_app_version("geoview"), ">=", "0.1.10")) then
-		log("[警告] Geoview 组件缺失或版本过低，规则生成流程已被跳过。")
+		log("[WARNING] Geoview components are missing or the version is too low, and the rule generation process has been skipped.")
 		return false
 	end
 	local geosite_path = asset_location .. "geosite.dat"
@@ -392,7 +392,7 @@ local function GeoToRule(rule_name, rule_type, out_path)
 	local local_file_size = tonumber(fs.stat(out_path, "size") or 0)
 	if local_file_size == 0 then
 		os.remove(out_path)
-		log(rule_name .. " 生成失败，请确保 Geo 文件正确且包含目标规则。")
+		log(rule_name .. " Generation failed. Please ensure that the Geo file is correct and contains target rules.")
 		return false
 	end
 	return true
@@ -407,9 +407,9 @@ local function fetch_rule(rule_name, rule_type, url, exclude_domain, max_retries
 	local rule_final_path = rule_path .. "/" .. rule_name
 	if geo2rule == "1" then
 		url = {"geo2rule"}
-		log(rule_name.. " 开始生成...")
+		log(rule_name.. " Start generating...")
 	else
-		log(rule_name.. " 开始更新...")
+		log(rule_name.. " Start updating...")
 	end
 
 	for k, v in ipairs(url) do
@@ -424,7 +424,7 @@ local function fetch_rule(rule_name, rule_type, url, exclude_domain, max_retries
 					break
 				end
 				os.remove(current_file)
-				log(string.format("%s 第%d条规则下载失败 (HTTP:%s)，正在进行第%d次尝试...", rule_name, k, tostring(http_code), i))
+				log(string.format("Rule # %d failed to download (HTTP:%s), currently in the %dth attempt....", rule_name, k, tostring(http_code), i))
 			end
 		else
 			if not GeoToRule(rule_name, rule_type, current_file) then return 1 end
@@ -484,7 +484,7 @@ local function fetch_rule(rule_name, rule_type, url, exclude_domain, max_retries
 			end
 		else
 			sret = 1
-			log(string.format("%s 第%d条规则: %s 下载失败！", rule_name, k, v))
+			log(string.format("Rule #: Download failed!", rule_name, k, v))
 		end
 		os.remove(current_file)
 	end
@@ -516,13 +516,13 @@ local function fetch_rule(rule_name, rule_type, url, exclude_domain, max_retries
 			end
 			os.execute(string.format("mv -f %s %s", file_tmp, rule_final_path))
 			if not rollback then reboot = 1 end
-			log(string.format("%s 更新成功，总规则数 %d 条。", rule_name, #result_list))
+			log(string.format("Update successful. Total number of rules: %d.", rule_name, #result_list))
 		else
-			log(rule_name .. " 版本一致，无需更新。")
+			log(rule_name .. " The versions are the same, no update is needed.")
 			os.remove(file_tmp)
 		end
 	else
-		log(rule_name .. " 更新失败（部分或全部资源无法下载）。")
+		log(rule_name .. " Update failed (some or all resources could not be downloaded).")
 		os.remove(file_tmp)
 	end
 	return 0
@@ -557,7 +557,7 @@ local function fetch_geofile(geo_name, geo_type, url)
 		if fs.access(asset_path) then
 			sys.call(string.format("cp -f %s %s", asset_path, tmp_path))
 			if verify_sha256(sha_path) then
-				log(geo_type .. " 版本一致，无需更新。")
+				log(geo_type .. " The versions are the same, no update is needed.")
 				return 0
 			end
 		end
@@ -565,12 +565,12 @@ local function fetch_geofile(geo_name, geo_type, url)
 
 	local sret_tmp, _, header = curl(url, tmp_path)
 	if sret_tmp == 0 and non_file_check(tmp_path, header) then
-		log(geo_type .. " 下载文件过程出错，尝试重新下载。")
+		log(geo_type .. " An error occurred during the file download process. Please try downloading again.")
 		os.remove(tmp_path)
 		sret_tmp, _, header= curl(url, tmp_path)
 		if sret_tmp == 0 and non_file_check(tmp_path, header) then
 			sret_tmp = 1
-			log(geo_type .. " 下载文件过程出错，请检查网络或下载链接后重试！")
+			log(geo_type .. " An error occurred while downloading the file. Please check your network or the download link and try again!")
 		end
 	end
 	if sret_tmp == 0 then
@@ -579,25 +579,25 @@ local function fetch_geofile(geo_name, geo_type, url)
 				sys.call(string.format("mkdir -p %s && mv -f %s %s", backup_path, asset_path, backup_path))
 				sys.call(string.format("mkdir -p %s && mv -f %s %s", asset_location, tmp_path, asset_path))
 				reboot = 1
-				log(geo_type .. " 更新成功。")
+				log(geo_type .. " Update successful.")
 				if geo_type == "geoip" then
 					geoip_update_ok = true
 				else
 					geosite_update_ok = true
 				end
 			else
-				log(geo_type .. " 更新失败，请稍后重试或更换更新URL。")
+				log(geo_type .. " Update failed. Please try again later or try a different update URL.")
 				return 1
 			end
 		else
 			if fs.access(asset_path) and sys.call(string.format("cmp -s %s %s", tmp_path, asset_path)) == 0 then
-				log(geo_type .. " 版本一致，无需更新。")
+				log(geo_type .. " The versions are the same, no update is needed.")
 				return 0
 			end
 			sys.call(string.format("mkdir -p %s && mv -f %s %s", backup_path, asset_path, backup_path))
 			sys.call(string.format("mkdir -p %s && mv -f %s %s", asset_location, tmp_path, asset_path))
 			reboot = 1
-			log(geo_type .. " 更新成功。")
+			log(geo_type .. " Update successful.")
 			if geo_type == "geoip" then
 				geoip_update_ok = true
 			else
@@ -605,7 +605,7 @@ local function fetch_geofile(geo_name, geo_type, url)
 			end
 		end
 	else
-		log(geo_type .. " 更新失败，请稍后重试或更换更新URL。")
+		log(geo_type .. " Update failed. Please try again later or try a different update URL.")
 		return 1
 	end
 	return 0
@@ -677,7 +677,7 @@ local function check_instance(action)
 		math.randomseed(os.time() + math.floor(os.clock() * 1000))
 		api.nixio.nanosleep(0, math.random(100, 1000) * 1000000)
 		if fs.access(rule_lock) then
-			log("有[规则更新]实例正在运行，请稍后再试...\n")
+			log("A rule update instance is currently running; please try again later...\n")
 			os.exit(0)
 		else
 			luci.sys.call("touch " .. rule_lock)
@@ -688,7 +688,7 @@ local function check_instance(action)
 	end
 
 	if fs.access(sub_lock) then
-		log("[订阅]实例正在运行，[规则更新]进入队列等待...\n")
+		log("The [Subscription] instance is running, and the [Rule Update] instance has entered the queue and is waiting...\n")
 	end
 	while fs.access(sub_lock) do
 		api.nixio.nanosleep(2, 0)
@@ -697,7 +697,7 @@ end
 
 check_instance("start")
 
-log("开始更新规则...")
+log("Start updating rules...")
 local function safe_call(func, err_msg)
 	xpcall(func, function(e)
 		log(e)
@@ -713,14 +713,14 @@ end
 
 if geo2rule == "1" then
 	if geoip_update == "1" and not rollback then
-		log("geoip 开始更新...")
-		safe_call(fetch_geoip, "更新geoip发生错误...")
+		log("geoip starts updating...")
+		safe_call(fetch_geoip, "An error occurred while updating geoip...")
 		remove_tmp_geofile("geoip")
 	end
 
 	if geosite_update == "1" and not rollback then
-		log("geosite 开始更新...")
-		safe_call(fetch_geosite, "更新geosite发生错误...")
+		log("geosite starts updating...")
+		safe_call(fetch_geosite, "An error occurred while updating geosite...")
 		remove_tmp_geofile("geosite")
 	end
 
@@ -730,47 +730,47 @@ if geo2rule == "1" then
 
 	if geoip_update_ok then
 		if fs.access(asset_location .. "geoip.dat") then
-			safe_call(fetch_chnroute, "生成chnroute发生错误...")
-			safe_call(fetch_chnroute6, "生成chnroute6发生错误...")
+			safe_call(fetch_chnroute, "An error occurred while generating chnroute...")
+			safe_call(fetch_chnroute6, "An error occurred while generating chnroute6...")
 		else
-			log("geoip.dat 文件不存在,跳过规则生成。")
+			log("If the geoip.dat file does not exist, skip rule generation.")
 		end
 	end
 
 	if geosite_update_ok then
 		if fs.access(asset_location .. "geosite.dat") then
-			safe_call(fetch_gfwlist, "生成gfwlist发生错误...")
-			safe_call(fetch_chnlist, "生成chnlist发生错误...")
+			safe_call(fetch_gfwlist, "An error occurred while generating gfwlist...")
+			safe_call(fetch_chnlist, "An error occurred while generating chnlist...")
 		else
-			log("geosite.dat 文件不存在,跳过规则生成。")
+			log("If the geosite.dat file does not exist, rule generation will be skipped.")
 		end
 	end
 else
 	if gfwlist_update == "1" then
-		safe_call(fetch_gfwlist, "更新gfwlist发生错误...")
+		safe_call(fetch_gfwlist, "An error occurred while updating gfwlist...")
 	end
 
 	if chnroute_update == "1" then
-		safe_call(fetch_chnroute, "更新chnroute发生错误...")
+		safe_call(fetch_chnroute, "An error occurred while updating chnroute...")
 	end
 
 	if chnroute6_update == "1" then
-		safe_call(fetch_chnroute6, "更新chnroute6发生错误...")
+		safe_call(fetch_chnroute6, "An error occurred while updating chnroute6...")
 	end
 
 	if chnlist_update == "1" then
-		safe_call(fetch_chnlist, "更新chnlist发生错误...")
+		safe_call(fetch_chnlist, "An error occurred while updating chnlist...")
 	end
 
 	if geoip_update == "1" then
-		log("geoip 开始更新...")
-		safe_call(fetch_geoip, "更新geoip发生错误...")
+		log("geoip starts updating...")
+		safe_call(fetch_geoip, "An error occurred while updating geoip...")
 		remove_tmp_geofile("geoip")
 	end
 
 	if geosite_update == "1" then
-		log("geosite 开始更新...")
-		safe_call(fetch_geosite, "更新geosite发生错误...")
+		log("geosite starts updating...")
+		safe_call(fetch_geosite, "An error occurred while updating geosite...")
 		remove_tmp_geofile("geosite")
 	end
 end
@@ -792,10 +792,10 @@ if reboot == 1 then
 		end
 	end
 
-	log("重启服务，应用新的规则。")
+	log("Restart the service and apply the new rules.")
 	uci:set(name, "@global[0]", "flush_set", "1")
 	api.uci_save(uci, name, true, true)
 end
-log("规则更新完毕...\n")
+log("The rules have been updated...\n")
 
 check_instance("end")
