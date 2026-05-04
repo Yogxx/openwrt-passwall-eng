@@ -84,7 +84,7 @@ function restart(var)
 	local LOG = var["-LOG"]
 	sys.call("/etc/init.d/dnsmasq restart >/dev/null 2>&1")
 	if LOG == "1" then
-		api.log("重启 dnsmasq 服务")
+		api.log(Restart the dnsmasq service")
 	end
 end
 
@@ -111,7 +111,7 @@ function logic_restart(var)
 		sys.call("/etc/init.d/dnsmasq restart >/dev/null 2>&1")
 	end
 	if LOG == "1" then
-		api.log("重启 dnsmasq 服务")
+		api.log("Restart the dnsmasq service")
 	end
 end
 
@@ -393,7 +393,7 @@ function add_rule(var)
 						process_address(url)
 					end
 				end)
-				log(string.format("  - 节点列表中的域名(vpslist)：%s", fwd_dns or "默认"))
+				log(string.format("  - Domains in the node list(vpslist)：%s", fwd_dns or "default"))
 			end
 		end
 
@@ -418,7 +418,7 @@ function add_rule(var)
 							set_domain_ipset(line, table.concat(sets, ","))
 						end
 					end
-					log(string.format("  - 域名白名单(whitelist)：%s", fwd_dns or "默认"))
+					log(string.format("  - Domain whitelist(whitelist)：%s", fwd_dns or "default"))
 				end
 			end
 		end
@@ -458,7 +458,7 @@ function add_rule(var)
 							set_domain_ipset(line, table.concat(sets, ","))
 						end
 					end
-					log(string.format("  - 代理域名表(blacklist)：%s", fwd_dns or "默认"))
+					log(string.format("  - proxy domain list(blacklist)：%s", fwd_dns or "default"))
 				end
 			end
 		end
@@ -499,7 +499,7 @@ function add_rule(var)
 							set_domain_ipset(line, table.concat(sets, ","))
 						end
 					end
-					log(string.format("  - 防火墙域名表(gfwlist)：%s", fwd_dns or "默认"))
+					log(string.format("  - Firewall Domain Name Table(gfwlist)：%s", fwd_dns or "default"))
 				end
 			end
 		end
@@ -545,7 +545,7 @@ function add_rule(var)
 							set_domain_ipset(line, table.concat(sets, ","))
 						end
 					end
-					log(string.format("  - 中国域名表(chnroute)：%s", fwd_dns or "默认"))
+					log(string.format("  - China Domain Name List(chnroute)：%s", fwd_dns or "default"))
 				end
 			end
 		end
@@ -619,7 +619,7 @@ function add_rule(var)
 						end
 					end
 					if _node_id ~= "_direct" then
-						log(string.format("  - Sing-Box/Xray分流规则(%s)：%s", s.remarks, fwd_dns or "默认"))
+						log(string.format("  - Sing-Box/Xray Trimming Rules(%s)：%s", s.remarks, fwd_dns or "default"))
 					end
 				end
 			end)
@@ -703,7 +703,7 @@ function add_rule(var)
 			tinsert(conf_lines, "no-poll")
 			tinsert(conf_lines, "no-resolv")
 			if USE_CHINADNS_NG == "0" then
-				log(string.format("  - 默认：%s", dnsmasq_default_dns))
+				log(string.format("  - default：%s", dnsmasq_default_dns))
 			end
 
 			if FLAG == "default" then
@@ -719,7 +719,7 @@ function add_rule(var)
 	end
 
 	if USE_CHINADNS_NG == "0" then
-		log("  - PassWall必须依赖于Dnsmasq，如果你自行配置了错误的DNS流程，将会导致域名(直连/代理域名)分流失效！！！")
+		log("  - PassWall depends on Dnsmasq. If you configure the DNS process incorrectly, it will cause the domain name (direct connection/proxy domain name) splitting to fail!！！")
 	end
 end
 
