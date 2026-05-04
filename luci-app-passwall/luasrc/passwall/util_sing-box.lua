@@ -60,7 +60,7 @@ function geo_convert_srs(var)
 		sys.call(cmd)
 		local status = fs.access(output_srs_file) and "success." or "failed!"
 		if status == "failed!" then
-			api.log(string.format("  - %s:%s 转换为srs格式：%s", prefix, rule_name, status))
+			api.log(string.format("  - %s:%s Convert to SRS format：%s", prefix, rule_name, status))
 		end
 	end
 end
