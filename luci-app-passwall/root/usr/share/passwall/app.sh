@@ -1448,7 +1448,7 @@ start_dns() {
 		chinadns_ng_min=2024.04.13
 		chinadns_ng_now=$($(first_type chinadns-ng) -V | grep -i "ChinaDNS-NG " | awk '{print $2}')
 		if [ $(check_ver "$chinadns_ng_now" "$chinadns_ng_min") = 1 ]; then
-			echolog "  * Note: The current ChinaDNS-NG version is[ $chinadns_ng_now ]，Please update to[ $chinadns_ng_min ]或以上版本，否则 DNS 有可能无法正常工作！"
+			echolog "  * Note: The current ChinaDNS-NG version is[ $chinadns_ng_now ]，Please update to[ $chinadns_ng_min ]or a later version; otherwise, DNS may not work properly!"
 		fi
 
 		[ "$FILTER_PROXY_IPV6" = "1" ] && DNSMASQ_FILTER_PROXY_IPV6=0
@@ -1456,7 +1456,7 @@ start_dns() {
 		china_ng_listen="127.0.0.1#${china_ng_listen_port}"
 		[ -z "${china_ng_trust_dns}" ] && local china_ng_trust_dns=${TUN_DNS}
 
-		echolog "  - ChinaDNS-NG(${china_ng_listen})：直连DNS：${china_ng_local_dns}，可信DNS：${china_ng_trust_dns}"
+		echolog "  - ChinaDNS-NG(${china_ng_listen})：Direct DNS：${china_ng_local_dns}，Trusted DNS：${china_ng_trust_dns}"
 
 		china_ng_listen="${china_ng_listen},::1#${china_ng_listen_port}"
 
@@ -1483,7 +1483,7 @@ start_dns() {
 
 	[ "$USE_DEFAULT_DNS" = "remote" ] && {
 		dnsmasq_version=$(dnsmasq -v | grep -i "Dnsmasq version " | awk '{print $3}')
-		[ "$(expr $dnsmasq_version \>= 2.87)" == 0 ] && echolog "Dnsmasq版本低于2.87，有可能无法正常使用！！！"
+		[ "$(expr $dnsmasq_version \>= 2.87)" == 0 ] && echolog "Dnsmasq versions lower than 2.87 may not function properly!"
 	}
 
 	local DNSMASQ_TUN_DNS=$(get_first_dns TUN_DNS 53 | sed -E 's/^\[([^]]+)\]:(.*)$/\1#\2/; t; s/^([^:]+):([0-9]+)$/\1#\2/')
@@ -1621,7 +1621,7 @@ acl_app() {
 						set_cache_var "ACL_${sid}_dns_port" "${GLOBAL_DNSMASQ_PORT}"
 						set_cache_var "ACL_${sid}_tcp_default" "1"
 					else
-						echolog "  - 全局节点未启用，跳过【${remarks}】"
+						echolog "  - Global nodes are not enabled, skip.【${remarks}】"
 					fi
 				else
 					[ "$(config_get_type $tcp_node)" = "nodes" ] || [ "$(config_get_type ${tcp_node#Socks_})" = "socks" ] && {
@@ -1678,7 +1678,7 @@ acl_app() {
 									chinadns_ng_min=2024.04.13
 									chinadns_ng_now=$($(first_type chinadns-ng) -V | grep -i "ChinaDNS-NG " | awk '{print $2}')
 									if [ $(check_ver "$chinadns_ng_now" "$chinadns_ng_min") = 1 ]; then
-										echolog "  * 注意：当前 ChinaDNS-NG 版本为[ $chinadns_ng_now ]，请更新到[ $chinadns_ng_min ]或以上版本，否则 DNS 有可能无法正常工作！"
+										echolog "  * Note: The current ChinaDNS-NG version is[ $chinadns_ng_now ]，Please update to[ $chinadns_ng_min ]or a later version; otherwise, DNS may not work properly!"
 									fi
 
 									[ "$filter_proxy_ipv6" = "1" ] && dnsmasq_filter_proxy_ipv6=0
@@ -1803,7 +1803,7 @@ acl_app() {
 						set_cache_var "ACL_${sid}_udp_redir_port" "${GLOBAL_UDP_redir_port}"
 						set_cache_var "ACL_${sid}_udp_default" "1"
 					else
-						echolog "  - 全局节点未启用，跳过【${remarks}】"
+						echolog "  - Global nodes are not enabled, skip.【${remarks}】"
 					fi
 				elif [ "$udp_node" = "tcp" ] || [ "$udp_node" = "$tcp_node" ]; then
 					udp_node=$(get_cache_var "ACL_${sid}_tcp_node")
@@ -1909,7 +1909,7 @@ start() {
 	fi
 	
 	start_crontab
-	echolog "运行完成！\n"
+	echolog "Running complete!\n"
 
 	[ "$ENABLED" = 1 ] && [ "$1" = "boot" ] && {
 		local cfgids item
@@ -1970,7 +1970,7 @@ stop() {
 	rm -f ${LOCK_PATH}/${CONFIG}_socks_auto_switch*
 	rm -f ${LOCK_PATH}/${CONFIG}_lease2hosts*
 	rm -f ${LOCK_PATH}/${CONFIG}_monitor*
-	echolog "清空并关闭相关程序和缓存完成。"
+	echolog "Clearing and closing related programs and cache complete."
 	exit 0
 }
 
