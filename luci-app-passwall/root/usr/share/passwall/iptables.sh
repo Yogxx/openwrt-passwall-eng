@@ -153,7 +153,7 @@ insert_rule_after() {
 
 RULE_LAST_INDEX() {
 	[ $# -ge 3 ] || {
-		echolog "索引列举方式不正确（iptables），终止执行！"
+		echolog "Incorrect index enumeration method (iptables), execution terminated!"
 		return 1
 	}
 	local ipt_tmp="${1}"; shift
@@ -195,7 +195,7 @@ get_jump_ipt() {
 }
 
 load_acl() {
-	([ "$ENABLED_ACLS" == 1 ] || ([ "$ENABLED_DEFAULT_ACL" == 1 ] && [ "$CLIENT_PROXY" == 1 ])) && echolog "  - 访问控制："
+	([ "$ENABLED_ACLS" == 1 ] || ([ "$ENABLED_DEFAULT_ACL" == 1 ] && [ "$CLIENT_PROXY" == 1 ])) && echolog "  - Access Control："
 	[ "$ENABLED_ACLS" == 1 ] && {
 		acl_app
 		for sid in $(ls -F ${TMP_ACL_PATH} | grep '/$' | awk -F '/' '{print $1}' | grep -v 'default'); do
@@ -229,14 +229,14 @@ load_acl() {
 			[ -n "$(get_cache_var "ACL_${sid}_dns_port")" ] && dns_redirect_port=$(get_cache_var "ACL_${sid}_dns_port")
 			[ -n "$tcp_node" ] && {
 				if is_socks_wrap "$tcp_node"; then
-					tcp_node_remark="Socks 配置($(config_n_get ${tcp_node#Socks_} port) 端口)"
+					tcp_node_remark="Socks configuration($(config_n_get ${tcp_node#Socks_} port) port)"
 				else
 					tcp_node_remark=$(config_n_get $tcp_node remarks)
 				fi
 			}
 			[ -n "$udp_node" ] && {
 				if is_socks_wrap "$udp_node"; then
-					udp_node_remark="Socks 配置($(config_n_get ${udp_node#Socks_} port) 端口)"
+					udp_node_remark="Socks configuration($(config_n_get ${udp_node#Socks_} port) port)"
 				else
 					udp_node_remark=$(config_n_get $udp_node remarks)
 				fi
@@ -249,12 +249,12 @@ load_acl() {
 
 			[ "${use_global_config}" = "1" ] && {
 				if is_socks_wrap "$TCP_NODE"; then
-					tcp_node_remark="Socks 配置($(config_n_get ${TCP_NODE#Socks_} port) 端口)"
+					tcp_node_remark="Socks configuration($(config_n_get ${TCP_NODE#Socks_} port) port)"
 				else
 					tcp_node_remark=$(config_n_get $TCP_NODE remarks)
 				fi
 				if is_socks_wrap "$UDP_NODE"; then
-					udp_node_remark="Socks 配置($(config_n_get ${UDP_NODE#Socks_} port) 端口)"
+					udp_node_remark="Socks configuration($(config_n_get ${UDP_NODE#Socks_} port) port)"
 				else
 					udp_node_remark=$(config_n_get $UDP_NODE remarks)
 				fi
@@ -291,9 +291,9 @@ load_acl() {
 					[ -z "${device}" ] && [ -d "/sys/class/net/${interface}" ] && device="${interface}"
 					[ -z "${device}" ] && device="${interface}"
 					_ipt_source="-i ${device} "
-					msg="源接口【${device}】，"
+					msg="Source Interface【${device}】，"
 				else
-					msg="源接口【所有】，"
+					msg="Source Interfaces [All]，"
 				fi
 				if [ -n "$(echo ${i} | grep '^iprange:')" ]; then
 					_iprange=$(echo ${i} | sed 's#iprange:##g')
@@ -309,7 +309,7 @@ load_acl() {
 						_ipt_source="${_ipt_source}-m set --match-set ${_ipset} src"
 						unset _ipset
 					else
-						echolog "  - 【$remarks】，${msg}不存在，忽略。"
+						echolog "  - 【$remarks】，${msg}Does not exist, ignore."
 						unset _ipset
 						continue
 					fi
@@ -325,7 +325,7 @@ load_acl() {
 					msg="${msg}MAC【${_mac}】，"
 					unset _mac
 				elif [ -n "$(echo ${i} | grep '^any')" ]; then
-					msg="${msg}所有设备，"
+					msg="${msg}All equipment，"
 				else
 					continue
 				fi
@@ -338,11 +338,11 @@ load_acl() {
 					if ! has_1_65535 "$tcp_no_redir_ports"; then
 						[ "$_ipv4" != "1" ] && add_port_rules "$ip6t_m -A PSW $(comment "$remarks") ${_ipt_source} -p tcp" $tcp_no_redir_ports "-j RETURN" 2>/dev/null
 						add_port_rules "$ipt_tmp -A PSW $(comment "$remarks") ${_ipt_source} -p tcp" $tcp_no_redir_ports "-j RETURN"
-						echolog "     - ${msg}不代理 TCP 端口[${tcp_no_redir_ports}]"
+						echolog "     - ${msg}Do not proxy TCP ports[${tcp_no_redir_ports}]"
 					else
 						#结束时会return，无需加多余的规则。
 						unset tcp_port
-						echolog "     - ${msg}不代理所有 TCP 端口"
+						echolog "     - ${msg}Do not proxy all TCP ports"
 					fi
 				}
 				
@@ -350,11 +350,11 @@ load_acl() {
 					if ! has_1_65535 "$udp_no_redir_ports"; then
 						[ "$_ipv4" != "1" ] && add_port_rules "$ip6t_m -A PSW $(comment "$remarks") ${_ipt_source} -p udp" $udp_no_redir_ports "-j RETURN" 2>/dev/null
 						add_port_rules "$ipt_m -A PSW $(comment "$remarks") ${_ipt_source} -p udp" $udp_no_redir_ports "-j RETURN"
-						echolog "     - ${msg}不代理 UDP 端口[${udp_no_redir_ports}]"
+						echolog "     - ${msg}Do not proxy UDP ports[${udp_no_redir_ports}]"
 					else
 						#结束时会return，无需加多余的规则。
 						unset udp_port
-						echolog "     - ${msg}不代理所有 UDP 端口"
+						echolog "     - ${msg}Do not proxy all UDP ports"
 					fi
 				}
 				
@@ -398,7 +398,7 @@ load_acl() {
 					[ "$_ipv4" != "1" ] && $ip6t_n -A PSW_DNS $(comment "$remarks") -p udp ${_ipt_source} --dport 53 -j REDIRECT --to-ports ${dns_redirect} 2>/dev/null
 					$ipt_n -A PSW_DNS $(comment "$remarks") -p tcp ${_ipt_source} --dport 53 -j REDIRECT --to-ports ${dns_redirect}
 					[ "$_ipv4" != "1" ] && $ip6t_n -A PSW_DNS $(comment "$remarks") -p tcp ${_ipt_source} --dport 53 -j REDIRECT --to-ports ${dns_redirect} 2>/dev/null
-					[ -z "$(get_cache_var "ACL_${sid}_tcp_default")" ] && echolog "     - ${msg}使用与全局配置不相同节点，已将DNS强制重定向到专用 DNS 服务器。"
+					[ -z "$(get_cache_var "ACL_${sid}_tcp_default")" ] && echolog "     - ${msg}Using a node that is different from the global configuration, DNS has been forcibly redirected to a dedicated DNS server."
 				fi
 
 				[ -n "$tcp_port" -o -n "$udp_port" ] && {
