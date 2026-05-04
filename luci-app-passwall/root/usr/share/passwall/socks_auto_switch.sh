@@ -91,7 +91,7 @@ test_auto_switch() {
 
 	local status=$(test_proxy)
 	if [ "$status" = "2" ]; then
-		echolog "Socks切换检测：无法连接到网络，请检查网络是否正常！"
+		echolog "Socks switching detection: Unable to connect to the network. Please check if the network is working properly!"
 		return 2
 	fi
 
@@ -101,10 +101,10 @@ test_auto_switch() {
 		[ $? -eq 0 ] && {
 			check_process
 			#主节点正常，切换到主节点
-			echolog "Socks切换检测：端口[${socks_port}] 主节点【$(config_n_get $main_node type)：[$(config_n_get $main_node remarks)]】正常，切换到主节点！"
+			echolog "Socks switch detection: Port[${socks_port}] 主节点【$(config_n_get $main_node type)：[$(config_n_get $main_node remarks)]】Normal, switch to master node!"
 			NO_REC_PROCESS=1 $APP_FILE socks_node_switch flag=${id} new_node=${main_node}
 			[ $? -eq 0 ] && {
-				echolog "Socks切换检测：端口[${socks_port}] 节点切换完毕！"
+				echolog "Socks switch detection: Port[${socks_port}] Node switch complete!"
 			}
 			return 0
 		}
@@ -125,13 +125,13 @@ test_auto_switch() {
 			done
 			# 如果没找到当前节点，或者当前节点是最后一个，就取第一个节点
 			[ -z "$new_node" ] && new_node="$first_node"
-			msg="切换到$([ "$now_node" = "$main_node" ] && echo 备用节点 || echo 下一个备用节点)检测！"
+			msg="Switch to$([ "$now_node" = "$main_node" ] && echo backup node || echo (Next backup node) Detection!"
 		else
 			# 只有一个后备节点时，与主节点轮询
 			new_node=$([ "$now_node" = "$main_node" ] && echo "$b_nodes" || echo "$main_node")
-			msg="切换到$([ "$now_node" = "$main_node" ] && echo 备用节点 || echo 主节点)检测！"
+			msg="Switch to$([ "$now_node" = "$main_node" ] && echo backup node || echo Master node)Detection！"
 		fi
-		echolog "Socks切换检测：端口[${socks_port}]【$(config_n_get $now_node type)：[$(config_n_get $now_node remarks)]】异常，$msg"
+		echolog "Socks switch detection: Port[${socks_port}]【$(config_n_get $now_node type)：[$(config_n_get $now_node remarks)]】abnormal，$msg"
 		test_node ${new_node}
 		if [ $? -eq 0 ]; then
 #			[ "$restore_switch" = "0" ] && {
@@ -140,10 +140,10 @@ test_auto_switch() {
 #				uci commit $CONFIG
 #			}
 			check_process
-			echolog "Socks切换检测：端口[${socks_port}]【$(config_n_get $new_node type)：[$(config_n_get $new_node remarks)]】正常，切换到此节点！"
+			echolog "Socks switch detection: Port[${socks_port}]【$(config_n_get $new_node type)：[$(config_n_get $new_node remarks)]】Normal, switch to this node!"
 			NO_REC_PROCESS=1 $APP_FILE socks_node_switch flag=${id} new_node=${new_node}
 			[ $? -eq 0 ] && {
-				echolog "Socks切换检测：端口[${socks_port}] 节点切换完毕！"
+				echolog "Socks switch detection: Port[${socks_port}] Node switch complete!"
 			}
 			return 0
 		else
