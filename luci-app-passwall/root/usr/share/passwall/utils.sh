@@ -388,7 +388,7 @@ has_1_65535() {
 add_ip2route() {
 	local ip=$(get_host_ip "ipv4" $1)
 	[ -z "$ip" ] && {
-		echolog "  - 无法解析[${1}]，路由表添加失败！"
+		echolog "  - Unable to resolve[${1}]，Route table addition failed!"
 		return 1
 	}
 	local remarks="${1}"
@@ -404,9 +404,9 @@ add_ip2route() {
 	if [ -n "${gateway}" ]; then
 		route add -host ${ip} gw ${gateway} dev ${device} >/dev/null 2>&1
 		echo "$ip" >> $TMP_ROUTE_PATH/${device}
-		echolog "  - [${remarks}]添加到接口[${device}]路由表成功！"
+		echolog "  - [${remarks}]Add to interface[${device}]Routing table successful!"
 	else
-		echolog "  - [${remarks}]添加到接口[${device}]路由表失功！原因是找不到[${device}]网关。"
+		echolog "  - [${remarks}]Add to interface[${device}]The routing table is malfunctioning! The reason is that it cannot find...[${device}]gateway."
 	fi
 }
 
@@ -432,10 +432,10 @@ ln_run() {
 			ln -s "${file_func}" "${TMP_BIN_PATH}/${ln_name}" >/dev/null 2>&1
 			file_func="${TMP_BIN_PATH}/${ln_name}"
 		}
-		[ -x "${file_func}" ] || echolog "  - $(readlink ${file_func}) 没有执行权限，无法启动：${file_func} $*"
+		[ -x "${file_func}" ] || echolog "  - $(readlink ${file_func}) No execute permission, cannot start：${file_func} $*"
 	fi
 	#echo "${file_func} $*" >&2
-	[ -n "${file_func}" ] || echolog "  - 找不到 ${ln_name}，无法启动..."
+	[ -n "${file_func}" ] || echolog "  - Cannot find ${ln_name}，Unable to start..."
 	[ "${output}" != "/dev/null" ] && [ "${ln_name}" != "chinadns-ng" ] && {
 		local persist_log_path=$(config_t_get global persist_log_path)
 		local sys_log=$(config_t_get global sys_log "0")
@@ -448,12 +448,12 @@ ln_run() {
 		if [ -n "${persist_log_path}" ]; then
 			mkdir -p ${persist_log_path}
 			local log_file=${persist_log_path}/passwall_${protocol}_${ln_name}_$(date '+%F').log
-			echolog "记录到持久性日志文件：${log_file}"
+			echolog "Recorded to persistent log file：${log_file}"
 			${file_func:-echolog " - ${ln_name}"} "$@" >> ${log_file} 2>&1 &
 			sys_log=0
 		fi
 		if [ "${sys_log}" == "1" ]; then
-			echolog "记录 ${ln_name}_${protocol} 到系统日志"
+			echolog "Record ${ln_name}_${protocol} To system log"
 			${file_func:-echolog " - ${ln_name}"} "$@" 2>&1 | logger -t PASSWALL_${protocol}_${ln_name} &
 		fi
 	fi
