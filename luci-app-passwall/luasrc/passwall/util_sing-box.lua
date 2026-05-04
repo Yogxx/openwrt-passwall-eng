@@ -33,7 +33,7 @@ function check_geoview()
 		GEO_VAR.OK = (api.finded_com("geoview") and api.compare_versions(api.get_app_version("geoview"), ">=", "0.1.10")) and 1 or 0
 	end
 	if GEO_VAR.OK == 0 then
-		api.log("！！！注意：缺少 Geoview 组件或版本过低，Sing-Box 分流无法启用！")
+		api.log("！！！Note: Sing-Box splitting cannot be enabled if the Geoview component is missing or the version is too low!")
 	else
 		GEO_VAR.DIR = GEO_VAR.DIR or (uci:get(appname, "@global_rules[0]", "v2ray_location_asset") or "/usr/share/v2ray/"):match("^(.*)/")
 		GEO_VAR.SITE_PATH = GEO_VAR.SITE_PATH or (GEO_VAR.DIR .. "/geosite.dat")
