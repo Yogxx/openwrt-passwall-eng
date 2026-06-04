@@ -153,7 +153,7 @@ insert_rule_after() {
 
 RULE_LAST_INDEX() {
 	[ $# -ge 3 ] || {
-		echolog "索引列举方式不正确（iptables），终止执行！"
+		echolog "Incorrect index enumeration method (iptables), execution terminated!"
 		return 1
 	}
 	local ipt_tmp="${1}"; shift
@@ -195,7 +195,7 @@ get_jump_ipt() {
 }
 
 load_acl() {
-	([ "$ENABLED_ACLS" == 1 ] || ([ "$ENABLED_DEFAULT_ACL" == 1 ] && [ "$CLIENT_PROXY" == 1 ])) && echolog "  - 访问控制："
+	([ "$ENABLED_ACLS" == 1 ] || ([ "$ENABLED_DEFAULT_ACL" == 1 ] && [ "$CLIENT_PROXY" == 1 ])) && echolog "  - Access Control："
 	[ "$ENABLED_ACLS" == 1 ] && {
 		acl_app
 		for sid in $(ls -F ${TMP_ACL_PATH} | grep '/$' | awk -F '/' '{print $1}' | grep -v 'default'); do
