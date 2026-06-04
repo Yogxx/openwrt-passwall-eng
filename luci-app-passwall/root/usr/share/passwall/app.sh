@@ -596,7 +596,7 @@ run_redir() {
 				local geoip_path="${V2RAY_LOCATION_ASSET%*/}/geoip.dat"
 				local geosite_path="${V2RAY_LOCATION_ASSET%*/}/geosite.dat"
 				if [ ! -s "$geoip_path" ] || [ ! -s "$geosite_path" ]; then
-					echolog "* 缺少Geo规则文件，UDP Sing-Box分流节点无法正常使用！"
+					echolog "* The UDP Sing-Box routing node cannot be used properly due to the missing Geo rules file!"
 				fi
 			}
 			run_singbox flag=UDP node=$node udp_redir_port=$local_port config_file=$config_file log_file=$log_file
@@ -607,13 +607,13 @@ run_redir() {
 				local geoip_path="${V2RAY_LOCATION_ASSET%*/}/geoip.dat"
 				local geosite_path="${V2RAY_LOCATION_ASSET%*/}/geosite.dat"
 				if [ ! -s "$geoip_path" ] || [ ! -s "$geosite_path" ]; then
-					echolog "* 缺少Geo规则文件，UDP Xray分流节点无法正常使用！"
+					echolog "* The UDP Xray splitter node cannot be used properly due to the missing Geo rules file!"
 				fi
 			}
 			run_xray flag=UDP node=$node udp_redir_port=$local_port config_file=$config_file log_file=$log_file
 		;;
 		naiveproxy)
-			echolog "Naiveproxy不支持UDP转发！"
+			echolog "Naiveproxy does not support UDP forwarding!"
 		;;
 		ssr)
 			json_add_string "local_addr" "0.0.0.0"
@@ -636,7 +636,7 @@ run_redir() {
 		esac
 	;;
 	TCP)
-		[ "$TCP_UDP" = "1" ] && echolog "UDP节点：与TCP节点相同"
+		[ "$TCP_UDP" = "1" ] && echolog "UDP node: Same as TCP node"
 		tcp_node_socks=1
 		tcp_node_socks_bind_local=$(config_t_get global tcp_node_socks_bind_local 1)
 		tcp_node_socks_bind="127.0.0.1"
@@ -645,7 +645,7 @@ run_redir() {
 		tcp_node_http_port=$(config_t_get global tcp_node_http_port 0)
 		[ "$tcp_node_http_port" != "0" ] && tcp_node_http=1
 		if [ $PROXY_IPV6 == "1" ]; then
-			echolog "开启实验性IPv6透明代理(TProxy)，请确认您的节点及类型支持IPv6！"
+			echolog "To enable experimental IPv6 transparent proxy (TProxy), please ensure your node and type support IPv6!"
 		fi
 
 		if [ "${TCP_PROXY_WAY}" = "redirect" ]; then
