@@ -36,7 +36,7 @@ unlock() {
 boot_func() {
 	local delay=$(uci -q get ${CONFIG}.@global_delay[0].start_delay || echo 1)
 	if [ "$delay" -gt 0 ]; then
-		echolog "执行启动延时 $delay 秒后再启动!"
+		echolog "Delay the startup time by $delay seconds before starting!"
 		sleep $delay
 	fi
 	restart boot
@@ -49,7 +49,7 @@ boot() {
 
 start() {
 	set_lock
-	[ $? == 1 ] && echolog "脚本已经在运行，不重复运行，退出." && exit 0
+	[ $? == 1 ] && echolog "The script is already running; do not run it again. Exit." && exit 0
 	$APP_FILE start
 	unset_lock
 }
@@ -57,14 +57,14 @@ start() {
 stop() {
 	unlock
 	set_lock
-	[ $? == 1 ] && echolog "停止脚本等待超时，不重复运行，退出." && exit 0
+	[ $? == 1 ] && echolog "Stop the script and wait for a timeout, then exit without repeating the process." && exit 0
 	$APP_FILE stop
 	unset_lock
 }
 
 restart() {
 	set_lock
-	[ $? == 1 ] && echolog "脚本已经在运行，不重复运行，退出." && exit 0
+	[ $? == 1 ] && echolog "The script is already running; do not run it again. Exit." && exit 0
 	rule_lock=${LOCK_FILE_DIR}/${CONFIG}_rule_update.lock
 	sub_lock=${LOCK_FILE_DIR}/${CONFIG}_subscribe.lock
 	for i in $(seq 1 300); do
