@@ -1073,7 +1073,7 @@ start_crontab() {
 
 	if [ -f "${LOCK_PATH}/${CONFIG}_cron.lock" ]; then
 		rm -f "${LOCK_PATH}/${CONFIG}_cron.lock"
-		echolog "当前为计划任务自动运行，不重新配置定时任务。"
+		echolog "The task is currently running automatically as a scheduled task; no reconfiguration of the scheduled task is required."
 		return
 	fi
 
@@ -1125,7 +1125,7 @@ start_crontab() {
 		else
 			echo "$rule_t lua $APP_PATH/rule_update.lua log all cron > /dev/null 2>&1 &" >>/etc/crontabs/root
 		fi
-		echolog "配置定时任务：自动更新规则。"
+		echolog "Configure a scheduled task to automatically update rules."
 	fi
 
 	# ===== subscribe =====
@@ -1139,7 +1139,7 @@ start_crontab() {
 			week_update=$(config_n_get "$item" week_update)
 			time_update=$(config_n_get "$item" time_update)
 			echo "$cfgid" >> "$TMP_SUB_PATH/${week_update}_${time_update}"
-			echolog "配置定时任务：自动更新【$remark】订阅。"
+			echolog "Configure scheduled tasks: Automatic updates【$remark】subscription."
 		fi
 	done
 	if [ -d "$TMP_SUB_PATH" ]; then
@@ -1162,10 +1162,10 @@ start_crontab() {
 	if [ "$ENABLED_DEFAULT_ACL" = "1" ] || [ "$ENABLED_ACLS" = "1" ]; then
 		if [ "$update_loop" = "1" ]; then
 			$APP_PATH/tasks.sh > /dev/null 2>&1 &
-			echolog "自动更新：启动循环更新进程。"
+			echolog "Automatic Updates: Starts a cyclical update process."
 		fi
 	else
-		echolog "运行于非代理模式，仅允许服务启停的定时任务。"
+		echolog "Running in non-agent mode, it only allows scheduled tasks for starting and stopping services."
 	fi
 
 	/etc/init.d/cron restart
@@ -1179,7 +1179,7 @@ stop_crontab() {
 }
 
 start_dns() {
-	echolog "DNS域名解析："
+	echolog "DNS domain name resolution："
 
 	local china_ng_local_dns=$(IFS=','; set -- $LOCAL_DNS; [ "${1%%[#:]*}" = "127.0.0.1" ] && echo "$1" || ([ -n "$2" ] && echo "$*" || echo "$1"))
 	local sing_box_local_dns=
@@ -1212,7 +1212,7 @@ start_dns() {
 				local china_ng_c_dns="tcp://$(get_first_dns DIRECT_DNS 53)"
 				ln_run "$(first_type chinadns-ng)" chinadns-ng "/dev/null" -b :: -l ${NEXT_DNS_LISTEN_PORT} -c ${china_ng_c_dns} -d chn
 				echolog "  - ChinaDNS-NG(${LOCAL_DNS}) -> ${china_ng_c_dns}"
-				echolog "  * 请确保上游直连 DNS 支持 TCP 查询。"
+				echolog "  * Please ensure that the upstream directly connected DNS supports TCP queries."
 				NEXT_DNS_LISTEN_PORT=$(expr $NEXT_DNS_LISTEN_PORT + 1)
 			}
 		;;
@@ -1354,8 +1354,8 @@ start_dns() {
 
 	[ -n "${resolve_dns_log}" ] && echolog "  - ${resolve_dns_log}"
 
-	[ -n "${TCP_PROXY_DNS}" ] && echolog "  * 请确认上游 DNS 支持 TCP/DoH 查询，如非直连地址，确保 TCP 代理打开，并且已经正确转发！"
-	[ -n "${UDP_PROXY_DNS}" ] && echolog "  * 请确认上游 DNS 支持 UDP 查询并已使用 UDP 节点，如上游 DNS 非直连地址，确保 UDP 代理打开，并且已经正确转发！"
+	[ -n "${TCP_PROXY_DNS}" ] && echolog "  * Please confirm that the upstream DNS supports TCP/DoH queries. If it is not a directly connected address, ensure that the TCP proxy is enabled and is forwarding correctly!"
+	[ -n "${UDP_PROXY_DNS}" ] && echolog "  * Please confirm that the upstream DNS supports UDP queries and is using a UDP node. If the upstream DNS is not a directly connected address, ensure that the UDP proxy is enabled and forwarding is done correctly!"
 
 	local china_ng_listen=0
 	[ "${DNS_SHUNT}" = "smartdns" ] && {
@@ -1369,9 +1369,9 @@ start_dns() {
 				smartdns_remote_dns="tcp://1.1.1.1"
 			fi
 
-			echolog "  - 域名解析：使用SmartDNS，请确保配置正常。"
+			echolog "  - Domain name resolution: Use SmartDNS, please ensure the configuration is correct."
 			china_ng_listen="127.0.0.1#${SMARTDNS_LISTEN_PORT}"
-			echolog "  - SmartDNS(127.0.0.1#${SMARTDNS_LOCAL_PORT}) -> 国内分组(${group_domestic:-null})，SmartDNS(${china_ng_listen}) -> Dnsmasq"
+			echolog "  - SmartDNS(127.0.0.1#${SMARTDNS_LOCAL_PORT}) -> Domestic Groups(${group_domestic:-null})，SmartDNS(${china_ng_listen}) -> Dnsmasq"
 			china_ng_listen="${china_ng_listen},::1#${SMARTDNS_LISTEN_PORT}"
 
 			local subnet_ip=$(config_t_get global remote_dns_client_ip)
@@ -1387,7 +1387,7 @@ start_dns() {
 			USE_DEFAULT_DNS="chinadns_ng"
 		else
 			DNS_SHUNT="dnsmasq"
-			echolog "  * 未安装SmartDNS，默认使用Dnsmasq进行域名解析！"
+			echolog "  * SmartDNS is not installed; Dnsmasq is used by default for domain name resolution!"
 		fi
 	}
 
@@ -1395,7 +1395,7 @@ start_dns() {
 		chinadns_ng_min=2024.04.13
 		chinadns_ng_now=$($(first_type chinadns-ng) -V | grep -i "ChinaDNS-NG " | awk '{print $2}')
 		if [ $(check_ver "$chinadns_ng_now" "$chinadns_ng_min") = 1 ]; then
-			echolog "  * 注意：当前 ChinaDNS-NG 版本为[ $chinadns_ng_now ]，请更新到[ $chinadns_ng_min ]或以上版本，否则 DNS 有可能无法正常工作！"
+			echolog "  * Note: The current ChinaDNS-NG version is[ $chinadns_ng_now ]，Please update to[ $chinadns_ng_min ]or a later version; otherwise, DNS may not work properly!"
 		fi
 
 		[ "$FILTER_PROXY_IPV6" = "1" ] && DNSMASQ_FILTER_PROXY_IPV6=0
@@ -1403,7 +1403,7 @@ start_dns() {
 		china_ng_listen="127.0.0.1#${china_ng_listen_port}"
 		[ -z "${china_ng_trust_dns}" ] && local china_ng_trust_dns=${TUN_DNS}
 
-		echolog "  - ChinaDNS-NG(${china_ng_listen})：直连DNS：${china_ng_local_dns}，可信DNS：${china_ng_trust_dns}"
+		echolog "  - ChinaDNS-NG(${china_ng_listen})：Direct DNS：${china_ng_local_dns}，Trusted DNS：${china_ng_trust_dns}"
 
 		china_ng_listen="${china_ng_listen},::1#${china_ng_listen_port}"
 
@@ -1430,7 +1430,7 @@ start_dns() {
 
 	[ "$USE_DEFAULT_DNS" = "remote" ] && {
 		dnsmasq_version=$(dnsmasq -v | grep -i "Dnsmasq version " | awk '{print $3}')
-		[ "$(expr $dnsmasq_version \>= 2.87)" == 0 ] && echolog "Dnsmasq版本低于2.87，有可能无法正常使用！！！"
+		[ "$(expr $dnsmasq_version \>= 2.87)" == 0 ] && echolog "Dnsmasq versions lower than 2.87 may not function properly！！！"
 	}
 
 	local DNSMASQ_TUN_DNS=$(get_first_dns TUN_DNS 53)
@@ -1484,7 +1484,7 @@ start_haproxy() {
 	[ "$(config_t_get global_haproxy balancing_enable 0)" != "1" ] && return
 	local haproxy_ver=$($(first_type haproxy) -v 2>/dev/null | awk 'NR==1 {print $3}' | cut -d'-' -f1)
 	if [ "$(check_ver "$haproxy_ver" "3.0.0")" = "1" ]; then
-		echolog "* 注意：haproxy($haproxy_ver) 程序版本低，HAPROXY 负载均衡启动失败，请更新到 3.0 以上版本。"
+		echolog "* Notice：haproxy($haproxy_ver) The program version is too low, and HAPROXY load balancer fails to start. Please update to version 3.0 or higher."
 		return
 	fi
 	local haproxy_path=$TMP_PATH/haproxy
@@ -1574,7 +1574,7 @@ acl_app() {
 						set_cache_var "ACL_${sid}_tcp_default" "1"
 						[ "$GLOBAL_SHUNT_NODE_FAKEDNS" = "1" ] && use_fakedns=1
 					else
-						echolog "  - 全局节点未启用，跳过【${remarks}】"
+						echolog "  - Global nodes are not enabled, skip【${remarks}】"
 					fi
 				else
 					[ "$(config_get_type $tcp_node)" = "nodes" ] || [ "$(config_get_type ${tcp_node#Socks_})" = "socks" ] && {
@@ -1636,7 +1636,7 @@ acl_app() {
 									chinadns_ng_min=2024.04.13
 									chinadns_ng_now=$($(first_type chinadns-ng) -V | grep -i "ChinaDNS-NG " | awk '{print $2}')
 									if [ $(check_ver "$chinadns_ng_now" "$chinadns_ng_min") = 1 ]; then
-										echolog "  * 注意：当前 ChinaDNS-NG 版本为[ $chinadns_ng_now ]，请更新到[ $chinadns_ng_min ]或以上版本，否则 DNS 有可能无法正常工作！"
+										echolog "  * Note: The current ChinaDNS-NG version is[ $chinadns_ng_now ]，Please update to[ $chinadns_ng_min ]or a later version; otherwise, DNS may not work properly!"
 									fi
 
 									[ "$filter_proxy_ipv6" = "1" ] && dnsmasq_filter_proxy_ipv6=0
