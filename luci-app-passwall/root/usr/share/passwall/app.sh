@@ -57,7 +57,7 @@ check_run_environment() {
 			nftflag=1
 			local v_num=$(echo "$dnsmasq_ver" | tr -cd '0-9')
 			if [ "${v_num:-0}" -lt 290 ]; then
-				echolog "hint：Dnsmasq ($dnsmasq_ver) 低于 2.90，An upgrade is recommended to improve stability."
+				echolog "hint：Dnsmasq ($dnsmasq_ver) Below 2.90，An upgrade is recommended to improve stability."
 			fi
 		fi
 		local pkg
@@ -1762,7 +1762,7 @@ acl_app() {
 						set_cache_var "ACL_${sid}_udp_redir_port" "${GLOBAL_UDP_redir_port}"
 						set_cache_var "ACL_${sid}_udp_default" "1"
 					else
-						echolog "  - 全局节点未启用，跳过【${remarks}】"
+						echolog "  - Global nodes are not enabled, skip.【${remarks}】"
 					fi
 				elif [ "$udp_node" = "tcp" ] || [ "$udp_node" = "$tcp_node" ]; then
 					udp_node=$(get_cache_var "ACL_${sid}_tcp_node")
@@ -1868,7 +1868,7 @@ start() {
 	fi
 	
 	start_crontab
-	echolog "运行完成！\n"
+	echolog "Running complete!\n"
 
 	[ "$ENABLED" = 1 ] && [ "$1" = "boot" ] && {
 		local cfgids item
@@ -1929,7 +1929,7 @@ stop() {
 	rm -f ${LOCK_PATH}/${CONFIG}_socks_auto_switch*
 	rm -f ${LOCK_PATH}/${CONFIG}_lease2hosts*
 	rm -f ${LOCK_PATH}/${CONFIG}_monitor*
-	echolog "清空并关闭相关程序和缓存完成。"
+	echolog "Clearing and closing related programs and cache complete."
 	exit 0
 }
 
