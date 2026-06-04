@@ -1070,7 +1070,7 @@ function gen_config(var)
 				blc_nodes = _node.balancing_node
 			end
 
-			api.log("  - 加载 Xray 负载均衡 节点【" .. (_node.remarks or "") .. "】，子节点数量：" .. #(blc_nodes or {}))
+			api.log("  - Load Xray load balancer nodes【" .. (_node.remarks or "") .. "】，Number of child nodes：" .. #(blc_nodes or {}))
 
 			local valid_nodes = {}
 			for i = 1, #(blc_nodes or {}) do
