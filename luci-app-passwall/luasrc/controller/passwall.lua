@@ -141,9 +141,9 @@ function reset_config()
 	luci.sys.call('/etc/init.d/passwall stop')
 	if luci.sys.call('[ -s "/usr/share/passwall/0_default_config" ]') == 0 then
 		luci.sys.call('cp -f /usr/share/passwall/0_default_config /etc/config/passwall')
-		api.log(" * 恢复默认配置成功。")
+		api.log(" * Default configuration restored successfully.")
 	else
-		api.log(" * 找不到默认配置文件，重置失败！")
+		api.log(" * The default configuration file could not be found; the reset failed!")
 	end
 end
 
@@ -878,7 +878,7 @@ function restore_backup()
 		if chunk_index + 1 == total_chunks then
 			uci:revert(appname)
 			luci.sys.call("echo '' > /tmp/log/passwall.log")
-			api.log(" * PassWall 配置文件上传成功…")
+			api.log(" * PassWall configuration file uploaded successfully…")
 			local temp_dir = '/tmp/passwall_bak'
 			luci.sys.call("mkdir -p " .. temp_dir)
 			if luci.sys.call("tar -xzf " .. file_path .. " -C " .. temp_dir) == 0 then
@@ -888,13 +888,13 @@ function restore_backup()
 						luci.sys.call("cp -f " .. temp_file .. " " .. backup_file)
 					end
 				end
-				api.log(" * PassWall 配置还原成功…")
-				api.log(" * 重启 PassWall 服务中…\n")
+				api.log(" * PassWall configuration restored successfully…")
+				api.log(" * Restarting the PassWall service…\n")
 				luci.sys.call('/etc/init.d/passwall restart > /dev/null 2>&1 &')
 				luci.sys.call('/etc/init.d/passwall_server restart > /dev/null 2>&1 &')
 				result = { status = "success", message = "Upload completed", path = file_path }
 			else
-				api.log(" * PassWall 配置文件解压失败，请重试！")
+				api.log(" * PassWall configuration file decompression failed, please try again!")
 				result = { status = "error", message = "Decompression failed" }
 			end
 			luci.sys.call("rm -rf " .. temp_dir)
