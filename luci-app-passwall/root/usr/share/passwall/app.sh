@@ -32,14 +32,14 @@ check_run_environment() {
 		if [ "$dnsmasq_nftset" -eq 1 ] && [ "$has_fw4" -eq 1 ]; then
 			USE_TABLES="nftables"
 		elif [ "$has_ipset" -eq 1 ] && [ "$has_ipt" -eq 1 ] && [ "$dnsmasq_ipset" -eq 1 ]; then
-			echolog "警告：nftables (fw4) 应用环境不完整，切换至 iptables。(has_fw4:$has_fw4/dnsmasq_nftset:$dnsmasq_nftset)"
+			echolog "warn：nftables (fw4) The application environment is incomplete; switch to iptables.(has_fw4:$has_fw4/dnsmasq_nftset:$dnsmasq_nftset)"
 			USE_TABLES="iptables"
 		fi
 	else
 		if [ "$has_ipset" -eq 1 ] && [ "$has_ipt" -eq 1 ] && [ "$dnsmasq_ipset" -eq 1 ]; then
 			USE_TABLES="iptables"
 		elif [ "$dnsmasq_nftset" -eq 1 ] && [ "$has_fw4" -eq 1 ]; then
-			echolog "警告：iptables (fw3) 应用环境不完整，切换至 nftables。(has_ipt:$has_ipt/has_ipset:$has_ipset/dnsmasq_ipset:$dnsmasq_ipset)"
+			echolog "warn：iptables (fw3) The application environment is incomplete; switch to nftables.(has_ipt:$has_ipt/has_ipset:$has_ipset/dnsmasq_ipset:$dnsmasq_ipset)"
 			USE_TABLES="nftables"
 		fi
 	fi
@@ -57,17 +57,17 @@ check_run_environment() {
 			nftflag=1
 			local v_num=$(echo "$dnsmasq_ver" | tr -cd '0-9')
 			if [ "${v_num:-0}" -lt 290 ]; then
-				echolog "提示：Dnsmasq ($dnsmasq_ver) 低于 2.90，建议升级以增强稳定性。"
+				echolog "hint：Dnsmasq ($dnsmasq_ver) 低于 2.90，An upgrade is recommended to improve stability."
 			fi
 		fi
 		local pkg
 		for pkg in $dep_list; do
 			if [ ! -s "${file_path}/${pkg}${file_ext}" ]; then
-				echolog "警告：${USE_TABLES} 透明代理缺失基础依赖 ${pkg}！"
+				echolog "warn：${USE_TABLES} Transparent proxy lacks basic dependencies ${pkg}！"
 			fi
 		done
 	else
-		echolog "警告：不满足任何透明代理系统环境。(has_fw4:$has_fw4/has_ipt:$has_ipt/has_ipset:$has_ipset/dnsmasq_nftset:$dnsmasq_nftset/dnsmasq_ipset:$dnsmasq_ipset)"
+		echolog "Warning: Not compatible with any transparent proxy system environment.(has_fw4:$has_fw4/has_ipt:$has_ipt/has_ipset:$has_ipset/dnsmasq_nftset:$dnsmasq_nftset/dnsmasq_ipset:$dnsmasq_ipset)"
 	fi
 }
 
@@ -188,7 +188,7 @@ run_singbox() {
 	if [ "${status}" = 0 ]; then
 		ln_run "$SINGBOX_BIN" "sing-box" "${log_file}" run -c "$config_file"
 	else
-		echolog "Sing-box 配置文件 $config_file 校验有误，进程启动失败，错误信息："
+		echolog "Sing-box configuration file $config_file Verification error, process failed to start, error message："
 		cat ${test_log_file} >> ${LOG_FILE}
 	fi
 	[ "$test_log_file" != "$log_file" ] && rm -f "${test_log_file}"
@@ -278,7 +278,7 @@ run_xray() {
 	if [ "${status}" = 0 ]; then
 		ln_run "$XRAY_BIN" "xray" "${log_file}" run -c "$config_file"
 	else
-		echolog "Xray 配置文件 $config_file 校验有误，进程启动失败，错误信息："
+		echolog "Xray configuration file $config_file Verification error, process failed to start, error message："
 		cat ${test_log_file} >> ${LOG_FILE}
 	fi
 	[ "$test_log_file" != "$log_file" ] && rm -f "${test_log_file}"
@@ -347,7 +347,7 @@ run_socks() {
 		type="socks"
 		server_host="127.0.0.1"
 		server_port=$node2socks_port
-		remarks="Socks 配置($server_port 端口)"
+		remarks="Socks configuration($server_port port)"
 	fi
 
 	[ -n "$relay_port" ] && {
@@ -359,12 +359,12 @@ run_socks() {
 	if [ -n "$server_host" ] && [ -n "$server_port" ]; then
 		check_host $server_host
 		[ $? != 0 ] && {
-			echolog "  - Socks节点：[$remarks]${server_host} 是非法的服务器地址，无法启动！"
+			echolog "  - Socks node：[$remarks]${server_host} This is an invalid server address and cannot be started!"
 			return 1
 		}
 		tmp="${server_host}:${server_port}"
 	else
-		error_msg="某种原因，此 Socks 服务的相关配置已失联，启动中止！"
+		error_msg="For some reason, the configuration for this Socks service has been lost, and its startup has been aborted!"
 	fi
 
 	if [ "$type" == "sing-box" ] || [ "$type" == "xray" ]; then
@@ -379,10 +379,10 @@ run_socks() {
 	fi
 
 	[ -n "${error_msg}" ] && {
-		[ "$bind" != "127.0.0.1" ] && echolog "  - Socks节点：[$remarks]${tmp}，启动中止 ${bind}:${socks_port} ${error_msg}"
+		[ "$bind" != "127.0.0.1" ] && echolog "  - Socks node：[$remarks]${tmp}，Start-up and abort ${bind}:${socks_port} ${error_msg}"
 		return 1
 	}
-	[ "$bind" != "127.0.0.1" ] && echolog "  - Socks节点：[$remarks]${tmp}，启动 ${bind}:${socks_port}"
+	[ "$bind" != "127.0.0.1" ] && echolog "  - Socks node：[$remarks]${tmp}，start up ${bind}:${socks_port}"
 
 	json_init
 	json_add_string "node" "${node}"
@@ -558,7 +558,7 @@ run_redir() {
 		fi
 		server_host="127.0.0.1"
 		port=$node2socks_port
-		remarks="Socks 配置($port 端口)"
+		remarks="Socks configuration($port port)"
 	fi
 
 	local enable_log=$(config_t_get global log_${proto} 1)
@@ -566,11 +566,11 @@ run_redir() {
 	[ -n "$server_host" ] && [ -n "$port" ] && {
 		check_host $server_host
 		[ $? != 0 ] && {
-			echolog "${PROTO}节点：[$remarks]${server_host} 是非法的服务器地址，无法启动！"
+			echolog "${PROTO}node：[$remarks]${server_host} This is an invalid server address and cannot be started!"
 			return 1
 		}
 	}
-	[ "$bind" != "127.0.0.1" ] && echolog "${PROTO}节点：[$remarks]，监听端口：$local_port"
+	[ "$bind" != "127.0.0.1" ] && echolog "${PROTO}node：[$remarks]，Listening port：$local_port"
 
 	json_init
 	json_add_string "node" "${node}"
