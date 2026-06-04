@@ -710,7 +710,7 @@ run_redir() {
 				local geoip_path="${V2RAY_LOCATION_ASSET%*/}/geoip.dat"
 				local geosite_path="${V2RAY_LOCATION_ASSET%*/}/geosite.dat"
 				if [ ! -s "$geoip_path" ] || [ ! -s "$geosite_path" ]; then
-					echolog "* 缺少Geo规则文件，TCP Sing-Box分流节点无法正常使用！"
+					echolog "* The TCP Sing-Box routing node cannot be used properly due to the missing Geo rules file!"
 				fi
 				[ "$(config_n_get $node fakedns)" = "1" ] && {
 					USE_FAKEDNS=1
@@ -796,7 +796,7 @@ run_redir() {
 				local geoip_path="${V2RAY_LOCATION_ASSET%*/}/geoip.dat"
 				local geosite_path="${V2RAY_LOCATION_ASSET%*/}/geosite.dat"
 				if [ ! -s "$geoip_path" ] || [ ! -s "$geosite_path" ]; then
-					echolog "* 缺少Geo规则文件，TCP Xray分流节点无法正常使用！"
+					echolog "* The TCP Xray splitter node cannot be used properly due to the missing Geo rules file!"
 				fi
 				[ "$(config_n_get $node fakedns)" = "1" ] && {
 					USE_FAKEDNS=1
@@ -973,7 +973,7 @@ start_redir() {
 		}
 	else
 		[ "${proto}" = "UDP" ] && [ "$TCP_UDP" = "1" ] && return
-		echolog "${proto}节点没有选择或为空，不代理${proto}。"
+		echolog "${proto}If no node is selected or the node is empty, no proxy will be provided.${proto}。"
 	fi
 }
 
@@ -981,7 +981,7 @@ start_socks() {
 	[ "$SOCKS_ENABLED" = "1" ] && {
 		local ids=$(uci show $CONFIG | grep "=socks" | awk -F '.' '{print $2}' | awk -F '=' '{print $1}')
 		[ -n "$ids" ] && {
-			echolog "分析 Socks 服务的节点配置..."
+			echolog "Analyze the node configuration of the Socks service..."
 			for id in $ids; do
 				local enabled=$(config_n_get $id enabled 0)
 				[ "$enabled" == "0" ] && continue
