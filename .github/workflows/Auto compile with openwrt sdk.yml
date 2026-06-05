@@ -12,6 +12,14 @@ on:
         description: 'SSH connection to Actions'
         required: false
         default: 'false'
+      upload_to_telegram:
+        description: 'Upload packages to Telegram?'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
 env:
   TZ: Asia/Shanghai
   passwall: ${{ github.repository }}
@@ -200,3 +208,17 @@ jobs:
         with:
           tag_name: ${{needs.job_check.outputs.passwall_version}}
           files: ${{ env.FIRMWARE }}/*
+
+      - name: Upload packages to Telegram
+        if: steps.compile.outputs.status == 'success' && github.event.inputs.upload_to_telegram == 'true'
+        run: |
+          version="${{needs.job_check.outputs.passwall_version}}"
+          caption="📦 *passwall ${{ matrix.ver }}* \`${version}\`"$'\n'"Branch: \`${{ github.ref_name }}\`"
+          for file in ${{ env.FIRMWARE }}/*; do
+            curl -sSf \
+              -F "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+              -F "document=@${file}" \
+              -F "caption=${caption}" \
+              -F "parse_mode=Markdown" \
+              "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendDocument"
+          done
